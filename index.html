@@ -64,6 +64,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1rem 0;}
 .st{font-size:12px;font-weight:600;color:var(--text);}
 .ss{font-size:11px;color:var(--light);}
 .note{font-size:12px;color:var(--muted);background:var(--green-bg);border-left:3px solid var(--green);border-radius:0 var(--rs) var(--rs) 0;padding:10px 14px;margin-top:1rem;}
+.note-blue{font-size:12px;color:#1e3a5f;background:#E8F4FD;border-left:3px solid var(--cyan);border-radius:0 var(--rs) var(--rs) 0;padding:10px 14px;margin-top:1rem;}
 footer{text-align:center;font-size:12px;color:var(--light);padding:2rem 0 1rem;border-top:1px solid var(--border);margin-top:3rem;}
 .flogo{width:32px;height:32px;border-radius:50%;margin:0 auto 8px;display:block;object-fit:contain;}
 @media(max-width:600px){.vgrid,.ppt3{grid-template-columns:1fr;}.badge{display:none;}.metrics{grid-template-columns:1fr 1fr;}}
@@ -84,20 +85,21 @@ footer{text-align:center;font-size:12px;color:var(--light);padding:2rem 0 1rem;b
 <div class="wrap">
   <div class="banner">
     ℹ️ <strong>Taux per diem (mémo RH MEMO-HRM-099-REV-7) :</strong>
-    RUN / YUL → <strong>2,97 €/h</strong> · USA / SFO / PPT → <strong>3,82 €/h</strong> ·
+    RUN / Europe / YUL → <strong>2,97 €/h</strong> · USA / SFO / PPT → <strong>3,82 €/h</strong> ·
     1 heure due à compter de la 31ᵉ minute · Versé à M+1 · Document non contractuel
   </div>
 
   <div class="tabs">
-    <button class="tab on"  onclick="go('RUN')">🌴 La Réunion (RUN)</button>
-    <button class="tab"     onclick="go('PPT')">🌊 Tahiti (PPT)</button>
-    <button class="tab"     onclick="go('MIA')">🌆 Miami (MIA)</button>
-    <button class="tab"     onclick="go('EWR')">🗽 New York (EWR)</button>
-    <button class="tab"     onclick="go('YUL')">🍁 Montréal (YUL)</button>
-    <button class="tab"     onclick="go('LAX')">☀️ Los Angeles (LAX)</button>
+    <button class="tab on" onclick="go('RUN')">🌴 RUN (basés ORY)</button>
+    <button class="tab"    onclick="go('ORY')">✈️ ORY (basés RUN)</button>
+    <button class="tab"    onclick="go('PPT')">🌊 Tahiti (PPT)</button>
+    <button class="tab"    onclick="go('MIA')">🌆 Miami (MIA)</button>
+    <button class="tab"    onclick="go('EWR')">🗽 New York (EWR)</button>
+    <button class="tab"    onclick="go('YUL')">🍁 Montréal (YUL)</button>
+    <button class="tab"    onclick="go('LAX')">☀️ Los Angeles (LAX)</button>
   </div>
 
-  <!-- RUN -->
+  <!-- RUN basés ORY -->
   <div id="RUN" class="panel on">
     <div class="route" id="rt-RUN"></div>
     <div class="card">
@@ -123,14 +125,52 @@ footer{text-align:center;font-size:12px;color:var(--light);padding:2rem 0 1rem;b
       <div class="erow">
         <label>Durée d'escale</label>
         <div class="btns" id="resc">
-          <button class="btn on" onclick="esc('RUN',24)">24h — ON3</button>
-          <button class="btn"    onclick="esc('RUN',48)">48h — ON4</button>
-          <button class="btn"    onclick="esc('RUN',72)">72h — ON5</button>
+          <button class="btn on" onclick="esc('RUN',24)">24h</button>
+          <button class="btn"    onclick="esc('RUN',36)">36h</button>
+          <button class="btn"    onclick="esc('RUN',48)">48h</button>
+          <button class="btn"    onclick="esc('RUN',72)">72h</button>
         </div>
       </div>
       <div class="metrics" id="res-RUN"></div>
     </div>
     <div class="note">🔄 <strong>Soft rule RUN :</strong> repos minimum recommandé ~20h. Couples de vols interchangeables selon planning.</div>
+  </div>
+
+  <!-- ORY basés RUN -->
+  <div id="ORY" class="panel">
+    <div class="route" id="rt-ORY"></div>
+    <div class="card">
+      <div class="clabel">Choix des vols</div>
+      <div class="vgrid">
+        <div class="vg">
+          <label>Vol aller (RUN → ORY)</label>
+          <div class="btns" id="oal">
+            <button class="btn on" onclick="oryVol('al','FB701','11h35')">FB701</button>
+            <button class="btn"    onclick="oryVol('al','FB703','11h35')">FB703</button>
+          </div>
+        </div>
+        <div class="vg">
+          <label>Vol retour (ORY → RUN)</label>
+          <div class="btns" id="oret">
+            <button class="btn on" onclick="oryVol('ret','FB700','11h35')">FB700</button>
+            <button class="btn"    onclick="oryVol('ret','FB702','11h35')">FB702</button>
+            <button class="btn"    onclick="oryVol('ret','FB704','11h35')">FB704</button>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="erow">
+        <label>Durée d'escale</label>
+        <div class="btns" id="oesc">
+          <button class="btn on" onclick="esc('ORY',24)">24h</button>
+          <button class="btn"    onclick="esc('ORY',36)">36h</button>
+          <button class="btn"    onclick="esc('ORY',48)">48h</button>
+          <button class="btn"    onclick="esc('ORY',72)">72h</button>
+        </div>
+      </div>
+      <div class="metrics" id="res-ORY"></div>
+    </div>
+    <div class="note-blue">ℹ️ <strong>Basés RUN en escale à Paris :</strong> per diem Europe à 2,97 €/h (mémo RH MEMO-HRM-099-REV-7).</div>
   </div>
 
   <!-- PPT -->
@@ -166,7 +206,7 @@ footer{text-align:center;font-size:12px;color:var(--light);padding:2rem 0 1rem;b
     <div id="res-PPT"></div>
   </div>
 
-  <!-- DESTINATIONS SIMPLES -->
+  <!-- MIA -->
   <div id="MIA" class="panel">
     <div class="route" id="rt-MIA"></div>
     <div class="card">
@@ -180,6 +220,7 @@ footer{text-align:center;font-size:12px;color:var(--light);padding:2rem 0 1rem;b
     </div>
   </div>
 
+  <!-- EWR -->
   <div id="EWR" class="panel">
     <div class="route" id="rt-EWR"></div>
     <div class="card">
@@ -193,6 +234,7 @@ footer{text-align:center;font-size:12px;color:var(--light);padding:2rem 0 1rem;b
     </div>
   </div>
 
+  <!-- YUL -->
   <div id="YUL" class="panel">
     <div class="route" id="rt-YUL"></div>
     <div class="card">
@@ -206,6 +248,7 @@ footer{text-align:center;font-size:12px;color:var(--light);padding:2rem 0 1rem;b
     </div>
   </div>
 
+  <!-- LAX -->
   <div id="LAX" class="panel">
     <div class="route" id="rt-LAX"></div>
     <div class="card">
@@ -228,7 +271,8 @@ footer{text-align:center;font-size:12px;color:var(--light);padding:2rem 0 1rem;b
 
 <script>
 var S = {
-  RUN: {pd:2.97, al:'FB700', tal:'11h35', ret:'FB701', tret:'11h35', h:24},
+  RUN: {pd:2.97, al:'FB700', tal:'11h35', ret:'FB701', tret:'11h35', h:24, base:'ORY'},
+  ORY: {pd:2.97, al:'FB701', tal:'11h35', ret:'FB700', tret:'11h35', h:24, base:'RUN'},
   MIA: {pd:3.82, al:'FB742', tal:'8h30',  ret:'FB743', tret:'9h00',  h:24},
   EWR: {pd:3.82, al:'FB720', tal:'8h15',  ret:'FB721', tret:'8h00',  h:24},
   YUL: {pd:2.97, al:'FB750', tal:'7h00',  ret:'FB761', tret:'7h30',  h:24},
@@ -236,11 +280,14 @@ var S = {
   PPT: {pd:3.82, sfo1:24, ppt:24, sfo2:24}
 };
 
+var TABS = ['RUN','ORY','PPT','MIA','EWR','YUL','LAX'];
+var ESC_IDS = {RUN:'resc', ORY:'oesc', MIA:'mesc', EWR:'eesc', YUL:'yesc', LAX:'lesc'};
+
 function fmt(v){return v.toFixed(2).replace('.',',') + ' €';}
 
 function go(d){
   document.querySelectorAll('.tab').forEach(function(b,i){
-    b.classList.toggle('on', ['RUN','PPT','MIA','EWR','YUL','LAX'][i]===d);
+    b.classList.toggle('on', TABS[i]===d);
   });
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
   document.getElementById(d).classList.add('on');
@@ -250,17 +297,24 @@ function go(d){
 function runVol(dir, vol, t){
   if(dir==='al'){S.RUN.al=vol; S.RUN.tal=t;}
   else{S.RUN.ret=vol; S.RUN.tret=t;}
-  var id = dir==='al'?'ral':'rret';
-  document.querySelectorAll('#'+id+' .btn').forEach(function(b){
+  document.querySelectorAll('#'+( dir==='al'?'ral':'rret' )+' .btn').forEach(function(b){
     b.classList.toggle('on', b.textContent.trim()===vol);
   });
   draw('RUN');
 }
 
+function oryVol(dir, vol, t){
+  if(dir==='al'){S.ORY.al=vol; S.ORY.tal=t;}
+  else{S.ORY.ret=vol; S.ORY.tret=t;}
+  document.querySelectorAll('#'+( dir==='al'?'oal':'oret' )+' .btn').forEach(function(b){
+    b.classList.toggle('on', b.textContent.trim()===vol);
+  });
+  draw('ORY');
+}
+
 function esc(dest, h){
   S[dest].h = h;
-  var ids = {RUN:'resc', MIA:'mesc', EWR:'eesc', YUL:'yesc', LAX:'lesc'};
-  document.querySelectorAll('#'+ids[dest]+' .btn').forEach(function(b){
+  document.querySelectorAll('#'+ESC_IDS[dest]+' .btn').forEach(function(b){
     b.classList.toggle('on', parseInt(b.textContent)===h);
   });
   draw(dest);
@@ -268,7 +322,7 @@ function esc(dest, h){
 
 function ppt(key, h){
   S.PPT[key]=h;
-  var ids = {sfo1:'psfo1', ppt:'pppt', sfo2:'psfo2'};
+  var ids={sfo1:'psfo1',ppt:'pppt',sfo2:'psfo2'};
   document.querySelectorAll('#'+ids[key]+' .btn').forEach(function(b){
     b.classList.toggle('on', parseInt(b.textContent)===h);
   });
@@ -276,7 +330,7 @@ function ppt(key, h){
 }
 
 function drawRoute(dest){
-  var el = document.getElementById('rt-'+dest);
+  var el=document.getElementById('rt-'+dest);
   if(!el) return;
   if(dest==='PPT'){
     var d=S.PPT;
@@ -284,7 +338,10 @@ function drawRoute(dest){
     return;
   }
   var d=S[dest];
-  el.innerHTML='<span class="ap">ORY</span><span class="ar">→</span><span class="rt">'+d.tal+'</span><span class="ar">→</span><span class="ap">'+dest+'</span><span class="rs">'+d.h+'h</span><span class="ar">→</span><span class="rt">'+d.tret+'</span><span class="ar">→</span><span class="ap">ORY</span>';
+  var from = (dest==='ORY') ? 'RUN' : dest==='RUN' ? 'ORY' : 'ORY';
+  var to   = (dest==='ORY') ? 'ORY' : dest==='RUN' ? 'RUN' : dest;
+  var escDest = (dest==='ORY') ? 'ORY' : dest;
+  el.innerHTML='<span class="ap">'+from+'</span><span class="ar">→</span><span class="rt">'+d.tal+'</span><span class="ar">→</span><span class="ap">'+escDest+'</span><span class="rs">'+d.h+'h</span><span class="ar">→</span><span class="rt">'+d.tret+'</span><span class="ar">→</span><span class="ap">'+from+'</span>';
 }
 
 function drawRes(dest){
@@ -295,12 +352,14 @@ function drawRes(dest){
     el.innerHTML='<div class="metrics"><div class="m"><div class="ml">Escale SFO aller</div><div class="mv">'+d.sfo1+'h</div><div class="ms">'+fmt(d.sfo1*d.pd)+'</div></div><div class="m"><div class="ml">Escale Tahiti</div><div class="mv">'+d.ppt+'h</div><div class="ms">'+fmt(d.ppt*d.pd)+'</div></div><div class="m"><div class="ml">Escale SFO retour</div><div class="mv">'+d.sfo2+'h</div><div class="ms">'+fmt(d.sfo2*d.pd)+'</div></div><div class="m"><div class="ml">Total escale</div><div class="mv n">'+th+'h</div><div class="ms">3,82 €/h</div></div></div><div class="total"><div><div class="tl">Per diem total rotation PPT</div><div class="ts">Vol FB710 (aller) · FB711 (retour)</div></div><div class="tv">'+fmt(tot)+'</div></div>';
     return;
   }
-  var d=S[dest], tot=d.h*d.pd, on=d.h===24?'ON3':d.h===48?'ON4':'ON5';
-  el.innerHTML='<div class="m"><div class="ml">Type de rotation</div><div class="mv n">'+on+'</div><div class="ms">'+d.h+'h sur place</div></div><div class="m"><div class="ml">Taux per diem</div><div class="mv">'+d.pd.toFixed(2).replace('.',',')+'€</div><div class="ms">par heure</div></div><div class="m"><div class="ml">Vol aller</div><div class="mv" style="font-size:16px">'+d.al+'</div><div class="ms">'+d.tal+' de vol</div></div><div class="m"><div class="ml">Vol retour</div><div class="mv" style="font-size:16px">'+d.ret+'</div><div class="ms">'+d.tret+' de vol</div></div><div class="total" style="grid-column:1/-1"><div><div class="tl">Per diem total rotation '+dest+'</div><div class="ts">'+d.h+'h × '+d.pd.toFixed(2).replace('.',',')+'€/h</div></div><div class="tv">'+fmt(tot)+'</div></div>';
+  var d=S[dest], tot=d.h*d.pd;
+  var on = d.h<=24?'ON3':d.h<=36?'ON3+':d.h<=48?'ON4':'ON5';
+  var label = dest==='ORY' ? 'ORY (basés RUN)' : dest;
+  el.innerHTML='<div class="m"><div class="ml">Type de rotation</div><div class="mv n">'+on+'</div><div class="ms">'+d.h+'h sur place</div></div><div class="m"><div class="ml">Taux per diem</div><div class="mv">'+d.pd.toFixed(2).replace('.',',')+'€</div><div class="ms">par heure</div></div><div class="m"><div class="ml">Vol aller</div><div class="mv" style="font-size:16px">'+d.al+'</div><div class="ms">'+d.tal+' de vol</div></div><div class="m"><div class="ml">Vol retour</div><div class="mv" style="font-size:16px">'+d.ret+'</div><div class="ms">'+d.tret+' de vol</div></div><div class="total" style="grid-column:1/-1"><div><div class="tl">Per diem total rotation '+label+'</div><div class="ts">'+d.h+'h × '+d.pd.toFixed(2).replace('.',',')+'€/h</div></div><div class="tv">'+fmt(tot)+'</div></div>';
 }
 
 function draw(dest){drawRoute(dest); drawRes(dest);}
-['RUN','PPT','MIA','EWR','YUL','LAX'].forEach(function(d){draw(d);});
+TABS.forEach(function(d){draw(d);});
 </script>
 </body>
 </html>
