@@ -183,10 +183,12 @@ footer{max-width:980px;margin:0 auto;text-align:center;font-size:11px;color:var(
   </div>
 </div></div>
 
-<!-- ══ PAGE PHV ══ -->
+<!-- PAGE PHV COMPLETE -->
 <div id="page-phv" class="page"><div class="wrap">
-  <div class="disclaimer"><strong>&#9888; Tous les calculs sont approximatifs et indicatifs — non contractuels.</strong></div>
-  <div class="banner gr">&#9992; <strong>Calculateur de salaire mensuel :</strong> Renseignez vos heures totales du mois pour estimer votre salaire brut. Le SMMG est toujours garanti (70 PHV incluses). Les PHV supplementaires sont versees a M+1.</div>
+  <div class="disclaimer"><strong>&#9888; Tous les calculs sont approximatifs et indicatifs — non contractuels. Montants en BRUT.</strong></div>
+  <div class="banner gr">&#9992; <strong>Calculateur de salaire mensuel brut :</strong> SMMG toujours garanti &middot; Variables versees a M+1 &middot; Grilles au 01/09/2025</div>
+
+  <!-- PROFIL -->
   <div class="card">
     <div class="clabel gr">Votre profil</div>
     <div class="vgrid">
@@ -204,25 +206,68 @@ footer{max-width:980px;margin:0 auto;text-align:center;font-size:11px;color:var(
       </div>
     </div>
     <div id="cci-block" style="display:none;margin-top:.8rem;">
-      <div class="clabel gr">PHV instructeur (a saisir manuellement)</div>
+      <div class="clabel gr">PHV instructeur</div>
       <div class="irow"><label>Valeur PHV/h</label><input class="inp" type="number" id="cci-phv-inp" placeholder="ex: 25.00" step="0.01" min="0" oninput="calcPHV()"><span class="unit">&#8364;</span></div>
       <div class="note or">Taux CCI/Instructeur non disponible dans le memo RH. Saisissez votre valeur PHV manuellement.</div>
     </div>
-    <hr>
+  </div>
+
+  <!-- VOLS DU MOIS -->
+  <div class="card">
+    <div class="clabel gr">Vols effectues ce mois</div>
+    <div style="font-size:12px;color:var(--mu);margin-bottom:10px;">Selectionnez le nombre de fois que vous avez effectue chaque vol (heures de nuit calculees en heure locale de depart)</div>
+    <div id="phv-vol-checks" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;"></div>
+    <div id="phv-hn-auto" style="display:none;margin-top:10px;font-size:13px;font-weight:600;color:var(--gr);padding:8px 12px;background:var(--gb);border-radius:var(--rs);"></div>
+  </div>
+
+  <!-- HEURES -->
+  <div class="card">
     <div class="clabel gr">Heures du mois</div>
     <div class="irow"><label>Total heures de vol</label><input class="inp" type="number" id="hv-inp" placeholder="ex: 75" min="0" max="200" oninput="calcPHV()"><span class="unit">h</span></div>
     <div class="irow">
-      <label>dont heures de nuit <span style="font-size:11px;color:var(--li)">(22h-6h heure Paris)</span></label>
-      <input class="inp" type="number" id="hn-inp" placeholder="ex: 8" min="0" max="200" oninput="calcPHV()"><span class="unit">h</span>
+      <label>Heures de nuit <span style="font-size:11px;color:var(--li)">(auto si vols coches)</span></label>
+      <input class="inp" type="number" id="hn-inp" placeholder="auto" min="0" max="200" oninput="calcPHV()"><span class="unit">h</span>
     </div>
-    <hr>
-    <div class="clabel gr">MEP du mois (mises en place)</div>
-    <div class="irow"><label>Total heures MEP</label><input class="inp" type="number" id="mep-inp" placeholder="ex: 4" min="0" max="50" oninput="calcPHV()"><span class="unit">h</span></div>
-    <div style="font-size:12px;color:var(--mu);margin-top:-0.5rem;margin-bottom:.9rem;">0,5 PHV par heure de MEP &middot; Sans majoration de nuit</div>
-    <div class="mets" id="res-PHV"></div><div id="tot-PHV"></div>
-    <div class="note or" style="margin-top:.9rem">&#9888; SMMG toujours garanti quelle que soit l'activite. PHV complementaires et majorations versees a M+1. Calcul approximatif.</div>
+    <div class="irow"><label>Heures MEP</label><input class="inp" type="number" id="mep-inp" placeholder="ex: 4" min="0" max="50" oninput="calcPHV()"><span class="unit">h</span></div>
+    <div style="font-size:12px;color:var(--mu);margin-top:-0.6rem;margin-bottom:.5rem;">0,5 PHV/h de MEP &middot; Sans majoration nuit</div>
+    <div class="irow"><label>Heures QRP</label><input class="inp" type="number" id="qrp-inp" placeholder="ex: 1" min="0" max="10" oninput="calcPHV()"><span class="unit">h</span></div>
+    <div style="font-size:12px;color:var(--mu);margin-top:-0.6rem;">Comptent comme heures de vol + eligibles heures sup</div>
   </div>
+
+  <!-- ABSENCES -->
+  <div class="card">
+    <div class="clabel gr">Absences &amp; conges</div>
+    <div class="irow"><label>Jours de CP</label><input class="inp" type="number" id="cp-inp" placeholder="ex: 5" min="0" max="31" oninput="calcPHV()"><span class="unit">j</span></div>
+    <div style="font-size:12px;color:var(--mu);margin-top:-0.6rem;margin-bottom:.7rem;">Proratise le seuil des 70 PHV</div>
+    <div class="irow"><label>Jours d'arret maladie</label><input class="inp" type="number" id="mal-inp" placeholder="ex: 3" min="0" max="31" oninput="calcPHV()"><span class="unit">j</span></div>
+    <div style="font-size:12px;color:var(--mu);margin-top:-0.6rem;">French Bee maintient le SMMG &middot; IJSS Secu en complement (non calcule)</div>
+  </div>
+
+  <!-- ACTIVITES SOL -->
+  <div class="card">
+    <div class="clabel gr">Activites au sol</div>
+    <div class="irow"><label>Journees delegation</label><input class="inp" type="number" id="deleg-j-inp" placeholder="ex: 2" min="0" max="31" oninput="calcPHV()"><span class="unit">j</span></div>
+    <div style="font-size:12px;color:var(--mu);margin-top:-0.6rem;margin-bottom:.7rem;">4,2 PHV par journee &middot; 2,1 PHV par demi-journee</div>
+    <div class="irow"><label>Demi-journees delegation</label><input class="inp" type="number" id="deleg-dj-inp" placeholder="ex: 1" min="0" max="31" oninput="calcPHV()"><span class="unit">dj</span></div>
+    <hr>
+    <div class="irow"><label>Journees formation/recurrent</label><input class="inp" type="number" id="form-inp" placeholder="ex: 3" min="0" max="10" oninput="calcPHV()"><span class="unit">j</span></div>
+    <div style="font-size:12px;color:var(--mu);margin-top:-0.6rem;margin-bottom:.7rem;">3 PHV par journee &middot; 1,5 PHV par demi-journee</div>
+    <div class="irow"><label>Demi-journees formation</label><input class="inp" type="number" id="form-dj-inp" placeholder="ex: 1" min="0" max="10" oninput="calcPHV()"><span class="unit">dj</span></div>
+  </div>
+
+  <!-- PRIMES FIXES -->
+  <div class="card">
+    <div class="clabel gr">Primes mensuelles</div>
+    <label class="chk" id="chk-tel-row" style="display:none"><input type="checkbox" id="chk-tel" onchange="calcPHV()"> Forfait telephonique CCL (50&#8364;/mois) &mdash; proratise si absences</label>
+    <div style="font-size:12px;color:var(--mu);padding:6px 0;">&#8505; Prime de representation (40&#8364;) ajoutee automatiquement selon votre fonction.</div>
+  </div>
+
+  <div class="mets" id="res-PHV"></div>
+  <div id="tot-PHV"></div>
+  <div id="tot-PHV-net"></div>
+  <div class="note or" style="margin-top:.9rem">&#9888; Calcul en <strong>BRUT</strong>. Estimation nette indicative apres deduction de ~23% de charges sociales. PHV complementaires et majorations versees a M+1.</div>
 </div></div>
+
 
 <!-- ══ PAGE ROTATION ══ -->
 <div id="page-rot" class="page"><div class="wrap">
@@ -357,27 +402,46 @@ var EQ_CC={0:0,1:40,2:80,3:100,4:120};
 var EQ_CCL={0:0,1:55,2:95,3:115,4:135};
 
 var VOLS={
-  'FB700':{dep:'19:55',dur:'11h05',hn:8.0,from:'ORY',to:'RUN'},
-  'FB702':{dep:'16:30',dur:'11h05',hn:5.5,from:'ORY',to:'RUN'},
-  'FB704':{dep:'07:05',dur:'11h05',hn:0.0,from:'ORY',to:'RUN'},
-  'FB701':{dep:'22:10',dur:'11h20',hn:5.8,from:'RUN',to:'ORY'},
-  'FB703':{dep:'08:30',dur:'11h50',hn:0.3,from:'RUN',to:'ORY'},
-  'FB705':{dep:'12:40',dur:'11h50',hn:4.5,from:'RUN',to:'ORY'},
-  'FB710':{dep:'18:30',dur:'08h20',hn:4.8,from:'ORY',to:'SFO'},
-  'FB711':{dep:'07:00',dur:'10h50',hn:0.5,from:'PPT',to:'ORY'},
-  'FB720':{dep:'18:50',dur:'08h10',hn:5.0,from:'ORY',to:'EWR'},
-  'FB721':{dep:'23:00',dur:'07h15',hn:1.0,from:'EWR',to:'ORY'},
-  'FB730':{dep:'14:50',dur:'11h40',hn:4.5,from:'ORY',to:'LAX'},
-  'FB731':{dep:'19:45',dur:'10h50',hn:1.3,from:'LAX',to:'ORY'},
-  'FB742':{dep:'17:00',dur:'09h50',hn:4.8,from:'ORY',to:'MIA'},
-  'FB743':{dep:'23:05',dur:'08h55',hn:0.9,from:'MIA',to:'ORY'},
-  'FB760':{dep:'19:20',dur:'07h40',hn:5.0,from:'ORY',to:'YUL'},
-  'FB761':{dep:'23:00',dur:'07h00',hn:1.0,from:'YUL',to:'ORY'}
+  'FB700':          {dep:'19:55',dur:'11h05',hn:8.0,  from:'ORY',to:'RUN'},
+  'FB702':          {dep:'16:30',dur:'11h05',hn:5.6,  from:'ORY',to:'RUN'},
+  'FB704':          {dep:'07:05',dur:'11h05',hn:0.0,  from:'ORY',to:'RUN'},
+  'FB701':          {dep:'22:10',dur:'11h20',hn:7.8,  from:'RUN',to:'ORY'},
+  'FB703':          {dep:'08:30',dur:'11h50',hn:0.0,  from:'RUN',to:'ORY'},
+  'FB705':          {dep:'12:40',dur:'11h50',hn:2.5,  from:'RUN',to:'ORY'},
+  'FB710 ORY-SFO':  {dep:'18:30',dur:'11h20',hn:7.8,  from:'ORY',to:'SFO'},
+  'FB710 SFO-PPT':  {dep:'10:00',dur:'08h00',hn:0.0,  from:'SFO',to:'PPT'},
+  'FB711 PPT-SFO':  {dep:'07:00',dur:'08h00',hn:0.0,  from:'PPT',to:'SFO'},
+  'FB711 SFO-ORY':  {dep:'20:30',dur:'10h50',hn:8.0,  from:'SFO',to:'ORY'},
+  'FB714':          {dep:'11:30',dur:'11h20',hn:0.8,  from:'ORY',to:'SFO'},
+  'FB720':          {dep:'18:50',dur:'08h10',hn:5.0,  from:'ORY',to:'EWR'},
+  'FB721':          {dep:'23:00',dur:'07h15',hn:7.0,  from:'EWR',to:'ORY'},
+  'FB730':          {dep:'14:50',dur:'11h40',hn:4.5,  from:'ORY',to:'LAX'},
+  'FB731':          {dep:'19:45',dur:'10h50',hn:8.0,  from:'LAX',to:'ORY'},
+  'FB742':          {dep:'17:00',dur:'09h50',hn:4.8,  from:'ORY',to:'MIA'},
+  'FB743':          {dep:'23:05',dur:'08h55',hn:6.9,  from:'MIA',to:'ORY'},
+  'FB760':          {dep:'19:20',dur:'07h40',hn:5.0,  from:'ORY',to:'YUL'},
+  'FB761':          {dep:'23:00',dur:'07h00',hn:7.0,  from:'YUL',to:'ORY'}
 };
-
-var DEST_AL={RUN:['FB700','FB702','FB704'],ORY:['FB701','FB703','FB705'],SFO:['FB710'],PPT:['FB710'],MIA:['FB742'],EWR:['FB720'],YUL:['FB760'],LAX:['FB730']};
-var DEST_RET={RUN:['FB701','FB703','FB705'],ORY:['FB700','FB702','FB704'],SFO:['FB711'],PPT:['FB711'],MIA:['FB743'],EWR:['FB721'],YUL:['FB761'],LAX:['FB731']};
-
+var DEST_AL={
+  RUN:['FB700','FB702','FB704'],
+  ORY:['FB701','FB703','FB705'],
+  SFO:['FB714','FB710 ORY-SFO'],
+  PPT:['FB710 ORY-SFO','FB710 SFO-PPT'],
+  MIA:['FB742'],
+  EWR:['FB720'],
+  YUL:['FB760'],
+  LAX:['FB730']
+};
+var DEST_RET={
+  RUN:['FB701','FB703','FB705'],
+  ORY:['FB700','FB702','FB704'],
+  SFO:['FB711 SFO-ORY'],
+  PPT:['FB711 PPT-SFO','FB711 SFO-ORY'],
+  MIA:['FB743'],
+  EWR:['FB721'],
+  YUL:['FB761'],
+  LAX:['FB731']
+};
 var PDS={
   RUN:{pd:2.97,al:'FB700',ret:'FB701',h:24},
   ORY:{pd:2.97,al:'FB701',ret:'FB700',h:24},
@@ -469,35 +533,123 @@ function getSmmg(){
   if(PHVs.fn==='CCI'){var phvR=getPhvRate();return phvR>0?phvR*70:0;}
   return PHVs.fn==='CCL'?CCL_SMMG[PHVs.cls]:CC_SMMG[PHVs.cls];
 }
+// PHV - Grille de vols avec compteurs
+function buildPhvVolChecks(){
+  var h='';
+  Object.keys(VOLS).forEach(function(num){
+    var v=VOLS[num];
+    h+='<div style="background:var(--bg);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;">';
+    h+='<div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:4px;">'+num+'</div>';
+    h+='<div style="font-size:10px;color:var(--li);margin-bottom:6px;">'+v.from+'&#8594;'+v.to+' &middot; dep.'+v.dep+' &middot; <strong>'+v.hn+'h nuit</strong></div>';
+    h+='<div style="display:flex;align-items:center;gap:4px;">';
+    h+='<button onclick="setVolCount(&quot;'+num+'&quot;,-1)" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--bd);background:var(--sf);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">-</button>';
+    h+='<span id="cnt-'+num+'" style="min-width:20px;text-align:center;font-weight:700;font-size:14px;color:var(--navy);">0</span>';
+    h+='<button onclick="setVolCount(&quot;'+num+'&quot;,1)" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--cyan);background:var(--cyan);color:white;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>';
+    h+='</div></div>';
+  });
+  document.getElementById('phv-vol-checks').innerHTML=h;
+}
+var volCounts={};
+function setVolCount(num,delta){
+  if(!volCounts[num])volCounts[num]=0;
+  volCounts[num]=Math.max(0,volCounts[num]+delta);
+  var el=document.getElementById('cnt-'+num);
+  if(el){el.textContent=volCounts[num];el.style.color=volCounts[num]>0?'var(--cyan)':'var(--navy)';}
+  updatePhvHn();
+}
+function updatePhvHn(){
+  var totalHn=0;var vols=[];
+  Object.keys(VOLS).forEach(function(num){
+    var cnt=volCounts[num]||0;
+    if(cnt>0){totalHn+=VOLS[num].hn*cnt;vols.push(cnt+'x'+num);}
+  });
+  totalHn=parseFloat(totalHn.toFixed(1));
+  document.getElementById('hn-inp').value=totalHn>0?totalHn:'';
+  var info=document.getElementById('phv-hn-auto');
+  if(vols.length>0){
+    info.style.display='block';
+    info.innerHTML='&#10003; '+vols.join(', ')+' &middot; Total heures de nuit : <strong>'+totalHn+'h</strong> (heure locale de depart)';
+  } else {
+    info.style.display='none';
+  }
+  calcPHV();
+}
+function setFn(fn){
+  PHVs.fn=fn;
+  document.querySelectorAll('#fn-btns .btn').forEach(function(b,i){b.classList.toggle('ong',['CC','CCL','CCI'][i]===fn);});
+  document.getElementById('cci-block').style.display=fn==='CCI'?'block':'none';
+  var telRow=document.getElementById('chk-tel-row');
+  if(telRow)telRow.style.display=fn==='CCL'?'flex':'none';
+  calcPHV();
+}
+function getPhvRate(){
+  if(PHVs.fn==='CCI'){var v=parseFloat(document.getElementById('cci-phv-inp').value);return isNaN(v)?0:v;}
+  return PHVs.fn==='CCL'?CCL_PHV[PHVs.cls]:CC_PHV[PHVs.cls];
+}
+function getSmmg(){
+  if(PHVs.fn==='CCI'){var phvR=getPhvRate();return phvR>0?phvR*70:0;}
+  return PHVs.fn==='CCL'?CCL_SMMG[PHVs.cls]:CC_SMMG[PHVs.cls];
+}
+
 function calcPHV(){
   PHVs.cls=parseInt(document.getElementById('cls-sel').value)||1;
   var hv=parseFloat(document.getElementById('hv-inp').value)||0;
   var hn=parseFloat(document.getElementById('hn-inp').value)||0;
   var mep=parseFloat(document.getElementById('mep-inp').value)||0;
-  var res=document.getElementById('res-PHV'),tot=document.getElementById('tot-PHV');
-  if(hv<=0&&mep<=0){res.innerHTML='';tot.innerHTML='';return;}
+  var qrp=parseFloat(document.getElementById('qrp-inp').value)||0;
+  var cp=parseFloat(document.getElementById('cp-inp').value)||0;
+  var mal=parseFloat(document.getElementById('mal-inp').value)||0;
+  var delegJ=parseFloat(document.getElementById('deleg-j-inp').value)||0;
+  var delegDJ=parseFloat(document.getElementById('deleg-dj-inp').value)||0;
+  var formJ=parseFloat(document.getElementById('form-inp').value)||0;
+  var formDJ=parseFloat(document.getElementById('form-dj-inp').value)||0;
+  var reprOn=true; // automatique pour tous
+  var telOn=document.getElementById('chk-tel')&&document.getElementById('chk-tel').checked;
+  var uprankNb=0; // géré par profil CC/CCL
+  var res=document.getElementById('res-PHV'),tot=document.getElementById('tot-PHV'),totn=document.getElementById('tot-PHV-net');
+  if(hv<=0&&mep<=0&&delegJ<=0&&delegDJ<=0&&formJ<=0&&formDJ<=0&&qrp<=0){res.innerHTML='';tot.innerHTML='';totn.innerHTML='';return;}
   var phvR=getPhvRate();
   var smmg=getSmmg();
-  if(phvR<=0){res.innerHTML='<div class="note or">Veuillez saisir votre valeur PHV/h.</div>';tot.innerHTML='';return;}
-  var hcompl=Math.max(0,hv-70);
-  var h6875=Math.max(0,Math.min(hv,75)-Math.max(68,70));
-  var hsup=Math.max(0,hv-75);
+  if(phvR<=0){res.innerHTML='<div class="note or">Veuillez saisir votre valeur PHV/h.</div>';tot.innerHTML='';totn.innerHTML='';return;}
+  // Proratisation seuil si CP ou maladie
+  var absJ=cp+mal;
+  var seuilBase=absJ>0?Math.max(0,Math.round(70*(1-absJ/30)*10)/10):70;
+  var hvTotal=hv+qrp;
+  var hcompl=Math.max(0,hvTotal-seuilBase);
+  var h6875=Math.max(0,Math.min(hvTotal,75)-Math.max(68,seuilBase));
+  var hsup=Math.max(0,hvTotal-75);
   var phvMep=mep*0.5*phvR;
+  var phvQrp=qrp*phvR;
   var phvComp=hcompl*phvR;
   var majPalier=h6875*phvR*0.15;
   var majSup=hsup*phvR*0.25;
   var majNuit=hn*phvR*0.25;
-  var total=smmg+phvComp+majPalier+majSup+majNuit+phvMep;
-  var det='<div class="m"><div class="ml">SMMG garanti (70h incl.)</div><div class="mv n">'+fmt(smmg)+'</div><div class="ms">'+PHVs.fn+(PHVs.fn!=='CCI'?' C'+PHVs.cls:'')+'</div></div>';
+  var phvDeleg=(delegJ*4.2+delegDJ*2.1)*phvR;
+  var phvForm=(formJ*3+formDJ*1.5)*phvR;
+  var primeRepr=reprOn?40:0;
+  var primeTel=telOn?50:0;
+  var primeUprank=0;
+  var total=smmg+phvComp+majPalier+majSup+majNuit+phvMep+phvDeleg+phvForm+primeRepr+primeTel+primeUprank;
+  var det='';
+  det+='<div class="m"><div class="ml">SMMG garanti</div><div class="mv n">'+fmt(smmg)+'</div><div class="ms">'+PHVs.fn+(PHVs.fn!=='CCI'?' C'+PHVs.cls:'')+(absJ>0?' &middot; seuil '+seuilBase.toFixed(1)+'h':'')+'</div></div>';
   det+='<div class="m"><div class="ml">PHV/h</div><div class="mv">'+fi(phvR)+'&#8364;</div></div>';
-  det+='<div class="m"><div class="ml">Heures volees</div><div class="mv">'+hv+'h</div></div>';
-  if(hcompl>0)det+='<div class="m"><div class="ml">PHV comp. (71e h+)</div><div class="mv gr">+'+fmt(phvComp)+'</div><div class="ms">'+hcompl.toFixed(1)+'h</div></div>';
-  if(majPalier>0)det+='<div class="m"><div class="ml">Maj. 68h-75h (+15%)</div><div class="mv gr">+'+fmt(majPalier)+'</div></div>';
+  det+='<div class="m"><div class="ml">Heures volees</div><div class="mv">'+hv+'h'+(qrp>0?' +'+qrp+'h QRP':'')+'</div></div>';
+  if(hn>0)det+='<div class="m"><div class="ml">H. de nuit</div><div class="mv">'+hn+'h</div></div>';
+  if(hcompl>0)det+='<div class="m"><div class="ml">PHV comp. ('+seuilBase.toFixed(0)+'e h+)</div><div class="mv gr">+'+fmt(phvComp)+'</div><div class="ms">'+hcompl.toFixed(1)+'h</div></div>';
+  if(majPalier>0)det+='<div class="m"><div class="ml">Maj. 68-75h (+15%)</div><div class="mv gr">+'+fmt(majPalier)+'</div></div>';
   if(majSup>0)det+='<div class="m"><div class="ml">H. sup +76h (+25%)</div><div class="mv gr">+'+fmt(majSup)+'</div><div class="ms">'+hsup.toFixed(1)+'h</div></div>';
   if(majNuit>0)det+='<div class="m"><div class="ml">Maj. nuit (+25%)</div><div class="mv gr">+'+fmt(majNuit)+'</div><div class="ms">'+hn+'h nuit</div></div>';
-  if(phvMep>0)det+='<div class="m"><div class="ml">MEP (0,5 PHV/h)</div><div class="mv gr">+'+fmt(phvMep)+'</div><div class="ms">'+mep+'h MEP</div></div>';
+  if(phvMep>0)det+='<div class="m"><div class="ml">MEP (0,5 PHV/h)</div><div class="mv gr">+'+fmt(phvMep)+'</div><div class="ms">'+mep+'h</div></div>';
+  if(phvDeleg>0)det+='<div class="m"><div class="ml">Delegation</div><div class="mv gr">+'+fmt(phvDeleg)+'</div><div class="ms">'+(delegJ>0?delegJ+'j ':'')+( delegDJ>0?delegDJ+'dj':'')+'</div></div>';
+  if(phvForm>0)det+='<div class="m"><div class="ml">Formation/recurrent</div><div class="mv gr">+'+fmt(phvForm)+'</div><div class="ms">'+(formJ>0?formJ+'j ':'')+( formDJ>0?formDJ+'dj':'')+'</div></div>';
+  if(primeRepr>0)det+='<div class="m"><div class="ml">Prime representation</div><div class="mv gr">+'+fmt(primeRepr)+'</div></div>';
+  if(primeTel>0)det+='<div class="m"><div class="ml">Forfait tel. CCL</div><div class="mv gr">+'+fmt(primeTel)+'</div></div>';
+
+  if(mal>0)det+='<div class="m"><div class="ml">Arret maladie</div><div class="mv or">'+mal+'j</div><div class="ms">SMMG maintenu &middot; IJSS Secu en complement</div></div>';
   res.innerHTML=det;
-  tot.innerHTML='<div class="tot gr"><div><div class="tl">Salaire brut estime du mois</div><div class="ts">SMMG + variables (PHV comp. + maj. verses a M+1)</div></div><div class="tv">'+fmt(total)+'</div></div>';
+  var net=total*0.77;
+  tot.innerHTML='<div class="tot gr"><div><div class="tl">Salaire brut estime du mois</div><div class="ts">SMMG + variables verses a M+1 &middot; Approximatif</div></div><div class="tv">'+fmt(total)+'</div></div>';
+  totn.innerHTML='<div style="background:var(--gb);border:1px solid #A7F3D0;border-radius:var(--r);padding:1rem 1.4rem;margin-top:.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;"><div><div style="font-size:12.5px;color:#065F46;">Estimation salaire NET (apres ~23% charges)</div><div style="font-size:11px;color:#6EE7B7;margin-top:2px;">Indicatif uniquement &middot; Varie selon situation personnelle</div></div><div style="font-family:Space Grotesk,sans-serif;font-size:28px;font-weight:700;color:#065F46;">'+fmt(net)+'</div></div>';
 }
 
 // ROTATION - vols aller/retour
@@ -651,6 +803,8 @@ function calcRot(){
 // INIT
 STABS.forEach(function(d){drawPD(d);});
 buildPncGrid();
+buildPhvVolChecks();
+volCounts={};
 buildRotVolBtns('RUN');
 </script>
 </body>
