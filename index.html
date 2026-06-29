@@ -1531,42 +1531,7 @@ function runFlexPreview(){
   lines+='<br><strong>HN : '+hvTotal.toFixed(1)+'h &middot; Per diem est. : '+pd.toFixed(0)+'&#8364;</strong>';
   p.innerHTML=lines;p.style.display='block';
 }
-window.addEventListener('load',function(){
-  var btnRunFlex=document.getElementById('btn-run-flex');
-  if(btnRunFlex)btnRunFlex.onclick=function(){
-    document.getElementById('rrota-modal').style.display='none';
-    document.getElementById('run-flex-modal').style.display='flex';
-    runFlexPreview();
-  };
-  var runApply=document.getElementById('run-apply');
-  if(runApply)runApply.onclick=function(){
-    var start=document.getElementById('run-start').value;
-    if(!start)return;
-    var va=VOLS[runVolAller]||{spans:false};
-    var vr=VOLS[runVolRetour]||{spans:false};
-    var escDays=Math.ceil(runEscale/24);
-    var sp=start.split('-');var startN=parseInt(sp[0])+'-'+parseInt(sp[1])+'-'+parseInt(sp[2]);
-    var rotaId='RUN-'+runEscale+'-'+startN;
-    function addR(offset,type,note){
-      var k=rOff(start,offset);
-      if(!rData[k])rData[k]=[];
-      var already=rData[k].some(function(e){return e.note===note;});
-      if(!already)rData[k].push({type:type,note:note,rotaId:rotaId,rotaKey:'RUN-'+runEscale});
-    }
-    addR(0,'vol',runVolAller);
-    var arrOff=va.spans?1:0;
-    if(va.spans)addR(1,'hotac','arr. RUN '+va.arr);
-    for(var i=0;i<escDays;i++)addR(arrOff+i+1,'hotac','HOTAC RUN');
-    var retOff=arrOff+escDays+1;
-    addR(retOff,'vol',runVolRetour);
-    if(vr.spans)addR(retOff+1,'hotac','arr. ORY '+vr.arr);
-    // Stocker dans registry
-    if(!window.rotaRegistry)window.rotaRegistry={};
-    window.rotaRegistry[rotaId]={key:'RUN-'+runEscale,start:startN,info:ROTAS_INFO['RUN-'+runEscale]||{hv:22.4,hn:15.8,on:'ON'+(2+escDays),pd:runEscale*2.97,label:'RUN '+runEscale+'h'}};
-    document.getElementById('run-flex-modal').style.display='none';
-    rRender();
-  };
-});
+// runApplyFn - gere par onclick direct);
 
 
 var rQuickType='off';
@@ -1653,6 +1618,34 @@ function rApplyRotaModal(key){
     prev.innerHTML=lines;
     prev.style.display='block';
   }
+}
+
+
+function runApplyFn(){
+  var start=document.getElementById('run-start').value;
+  if(!start)return;
+  var va=VOLS[runVolAller]||{spans:false};
+  var vr=VOLS[runVolRetour]||{spans:false};
+  var escDays=Math.ceil(runEscale/24);
+  var sp=start.split('-');var startN=parseInt(sp[0])+'-'+parseInt(sp[1])+'-'+parseInt(sp[2]);
+  var rotaId='RUN-'+runEscale+'-'+startN;
+  function addR(offset,type,note){
+    var k=rOff(start,offset);
+    if(!rData[k])rData[k]=[];
+    var already=rData[k].some(function(e){return e.note===note;});
+    if(!already)rData[k].push({type:type,note:note,rotaId:rotaId,rotaKey:'RUN-'+runEscale});
+  }
+  addR(0,'vol',runVolAller);
+  var arrOff=va.spans?1:0;
+  if(va.spans)addR(1,'hotac','arr. RUN '+va.arr);
+  for(var i=0;i<escDays;i++)addR(arrOff+i+1,'hotac','HOTAC RUN');
+  var retOff=arrOff+escDays+1;
+  addR(retOff,'vol',runVolRetour);
+  if(vr.spans)addR(retOff+1,'hotac','arr. ORY '+vr.arr);
+  if(!window.rotaRegistry)window.rotaRegistry={};
+  window.rotaRegistry[rotaId]={key:'RUN-'+runEscale,start:startN,info:ROTAS_INFO['RUN-'+runEscale]||{hv:22.4,hn:15.8,on:'ON'+(2+escDays),pd:(runEscale-1)*2.97,label:'RUN '+runEscale+'h'}};
+  document.getElementById('run-flex-modal').style.display='none';
+  rRender();
 }
 
 </script>
@@ -1777,7 +1770,7 @@ function rApplyRotaModal(key){
 <div id="rmodal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;"><div style="background:white;border-radius:var(--r);padding:1.4rem;max-width:320px;width:92%;max-height:85vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.3);"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:.9rem;" id="rmodal-title">Ajouter</div><div id="rmodal-entries" style="margin-bottom:.5rem;"></div><div id="rmodal-vol-sec" style="display:none;margin-bottom:.7rem;"><select class="sel" id="rmodal-vol-sel" style="width:100%;font-size:12px;"></select></div><input type="text" id="rmodal-note" placeholder="Note optionnelle" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:7px 10px;font-size:13px;font-family:Inter,sans-serif;margin-bottom:.7rem;"><div style="display:flex;gap:7px;"><button onclick="rAddEntry()" style="flex:1;padding:9px;border-radius:var(--rs);border:none;background:var(--or);color:white;font-size:13px;font-weight:600;cursor:pointer;">+ Ajouter</button><button onclick="rCloseModal()" style="flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sf);color:var(--mu);font-size:13px;cursor:pointer;">Fermer</button></div></div></div>
 <div id="rbloc5" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;"><div style="background:white;border-radius:var(--r);padding:1.4rem;max-width:300px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.3);"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:.9rem;">&#128308; Bloc 5j OFF</div><div style="font-size:13px;color:var(--mu);margin-bottom:.7rem;">Date de debut :</div><input type="date" id="rbloc5-date" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 11px;font-size:15px;margin-bottom:.9rem;"><div style="display:flex;gap:7px;"><button onclick="rSaveBloc5()" style="flex:1;padding:9px;border-radius:var(--rs);border:none;background:var(--or);color:white;font-size:13px;font-weight:600;cursor:pointer;">Ajouter</button><button onclick="document.getElementById('rbloc5').style.display='none'" style="flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sf);color:var(--mu);font-size:13px;cursor:pointer;">Annuler</button></div></div></div>
 <div id="rrota-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;"><div style="background:white;border-radius:var(--r);padding:1.4rem;max-width:340px;width:92%;max-height:85vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.3);"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:.9rem;">&#9992; Ajouter une rotation</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:.9rem;" id="rota-btns"><button class="btn" id="btn-run-flex" onclick="document.getElementById('rrota-modal').style.display='none';document.getElementById('run-flex-modal').style.display='flex'" style="grid-column:1/-1;background:#1B2A4A;color:white;border-color:#1B2A4A;">&#127796; RUN (vols &amp; escale libres)</button><button class="btn" onclick="rApplyRotaModal('MIA-24')" data-rota="MIA-24">MIA 24h</button><button class="btn" onclick="rApplyRotaModal('MIA-48')" data-rota="MIA-48">MIA 48h</button><button class="btn" onclick="rApplyRotaModal('MIA-72')" data-rota="MIA-72">MIA 72h</button><button class="btn" onclick="rApplyRotaModal('EWR-24')" data-rota="EWR-24">EWR 24h</button><button class="btn" onclick="rApplyRotaModal('EWR-48')" data-rota="EWR-48">EWR 48h</button><button class="btn" onclick="rApplyRotaModal('EWR-72')" data-rota="EWR-72">EWR 72h</button><button class="btn" onclick="rApplyRotaModal('YUL-24')" data-rota="YUL-24">YUL 24h</button><button class="btn" onclick="rApplyRotaModal('YUL-48')" data-rota="YUL-48">YUL 48h</button><button class="btn" onclick="rApplyRotaModal('YUL-72')" data-rota="YUL-72">YUL 72h</button><button class="btn" onclick="rApplyRotaModal('LAX-24')" data-rota="LAX-24">LAX 24h</button><button class="btn" onclick="rApplyRotaModal('LAX-48')" data-rota="LAX-48">LAX 48h</button><button class="btn" onclick="rApplyRotaModal('LAX-72')" data-rota="LAX-72">LAX 72h</button><button class="btn" onclick="rApplyRotaModal('SFO-24')" data-rota="SFO-24">SFO sec 24h</button><button class="btn" onclick="rApplyRotaModal('SFO-48')" data-rota="SFO-48">SFO sec 48h</button><button class="btn" id="btn-ppt-flex" onclick="document.getElementById('rrota-modal').style.display='none';document.getElementById('ppt-flex-modal').style.display='flex'" style="grid-column:1/-1;background:var(--cyan);color:white;border-color:var(--cyan);">&#127754; PPT (escales personnalisables)</button></div><div id="rota-sel-info" style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:.7rem;display:none;"></div><div style="font-size:12px;color:var(--mu);margin-bottom:5px;">Date de depart (J0) :</div><input type="date" id="rrota-date" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 11px;font-size:15px;margin-bottom:.7rem;"><div id="rrota-preview" style="font-size:11px;color:var(--mu);margin-bottom:.9rem;line-height:1.7;display:none;max-height:180px;overflow-y:auto;"></div><div style="display:flex;gap:7px;"><button id="rrota-apply" style="flex:1;padding:9px;border-radius:var(--rs);border:none;background:var(--cyan);color:white;font-size:13px;font-weight:600;cursor:pointer;display:none;">Appliquer</button><button onclick="document.getElementById('rrota-modal').style.display='none'" style="flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sf);color:var(--mu);font-size:13px;cursor:pointer;">Fermer</button></div></div></div>
-<div id="rquick-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;"><div style="background:white;border-radius:var(--r);padding:1.4rem;max-width:300px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.3);"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:.9rem;" id="rquick-title">Ajouter</div><div id="rquick-vol-sec" style="display:none;margin-bottom:.7rem;"><select class="sel" id="rquick-vol-sel" style="width:100%;font-size:12px;"></select></div><input type="text" id="rquick-note" placeholder="Note optionnelle" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:7px 10px;font-size:13px;font-family:Inter,sans-serif;margin-bottom:.7rem;display:none;"><div style="font-size:12px;color:var(--mu);margin-bottom:5px;">Date :</div><input type="date" id="rquick-date" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 11px;font-size:15px;margin-bottom:.9rem;"><div style="display:flex;gap:7px;"><button id="rquick-apply" style="flex:1;padding:9px;border-radius:var(--rs);border:none;background:var(--or);color:white;font-size:13px;font-weight:600;cursor:pointer;">Ajouter</button><button onclick="document.getElementById('rquick-modal').style.display='none'" style="flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sf);color:var(--mu);font-size:13px;cursor:pointer;">Annuler</button></div></div></div>
+<div id="rquick-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;"><div style="background:white;border-radius:var(--r);padding:1.4rem;max-width:300px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.3);"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:.9rem;" id="rquick-title">Ajouter</div><div id="rquick-vol-sec" style="display:none;margin-bottom:.7rem;"><select class="sel" id="rquick-vol-sel" style="width:100%;font-size:12px;"></select></div><input type="text" id="rquick-note" placeholder="Note optionnelle" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:7px 10px;font-size:13px;font-family:Inter,sans-serif;margin-bottom:.7rem;display:none;"><div style="font-size:12px;color:var(--mu);margin-bottom:5px;">Date :</div><input type="date" id="rquick-date" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 11px;font-size:15px;margin-bottom:.9rem;"><div style="display:flex;gap:7px;"><button id="rquick-apply" onclick="rQuickSave()" style="flex:1;padding:9px;border-radius:var(--rs);border:none;background:var(--or);color:white;font-size:13px;font-weight:600;cursor:pointer;">Ajouter</button><button onclick="document.getElementById('rquick-modal').style.display='none'" style="flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sf);color:var(--mu);font-size:13px;cursor:pointer;">Annuler</button></div></div></div>
 
 
 <!-- MODAL RUN FLEXIBLE -->
@@ -1808,7 +1801,7 @@ function rApplyRotaModal(key){
     </div>
     <div id="run-preview" style="font-size:11px;color:var(--mu);background:var(--bg);border-radius:var(--rs);padding:8px 10px;margin-bottom:1rem;line-height:1.8;display:none;"></div>
     <div style="display:flex;gap:7px;">
-      <button id="run-apply" style="flex:1;padding:9px;border-radius:var(--rs);border:none;background:#1B2A4A;color:white;font-size:13px;font-weight:600;cursor:pointer;">Appliquer</button>
+      <button id="run-apply" onclick="runApplyFn()" style="flex:1;padding:9px;border-radius:var(--rs);border:none;background:#1B2A4A;color:white;font-size:13px;font-weight:600;cursor:pointer;">Appliquer</button>
       <button onclick="document.getElementById('run-flex-modal').style.display='none'" style="flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sf);color:var(--mu);font-size:13px;cursor:pointer;">Annuler</button>
     </div>
   </div>
@@ -1912,7 +1905,7 @@ function rApplyRotaModal(key){
 
     <div id="b2b-preview" style="font-size:11px;color:var(--mu);background:var(--bg);border-radius:var(--rs);padding:8px 10px;margin-bottom:1rem;line-height:1.7;display:none;"></div>
     <div style="display:flex;gap:7px;">
-      <button id="b2b-apply" style="flex:1;padding:9px;border-radius:var(--rs);border:none;background:#7C3AED;color:white;font-size:13px;font-weight:600;cursor:pointer;display:none;">Appliquer</button>
+      <button id="b2b-apply" onclick="b2bApply()" style="flex:1;padding:9px;border-radius:var(--rs);border:none;background:#7C3AED;color:white;font-size:13px;font-weight:600;cursor:pointer;display:none;">Appliquer</button>
       <button onclick="document.getElementById('b2b-modal').style.display='none'" style="flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sf);color:var(--mu);font-size:13px;cursor:pointer;">Annuler</button>
     </div>
   </div>
