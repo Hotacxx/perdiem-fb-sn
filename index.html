@@ -99,6 +99,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:.9rem 0;}
 .chk{display:flex;align-items:center;gap:8px;margin:.4rem 0;cursor:pointer;font-size:13px;color:var(--mu);}
 .chk input{width:16px;height:16px;cursor:pointer;accent-color:var(--or);}
 .det-line{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);font-size:13px;}
+.m1-badge{display:inline-block;background:var(--or);color:white;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:6px;vertical-align:middle;letter-spacing:.03em;}
 .det-line:last-child{border-bottom:none;}
 .det-line .lbl{color:var(--mu);}
 .det-line .val{font-weight:600;}
@@ -203,7 +204,8 @@ footer{max-width:980px;margin:0 auto;text-align:center;font-size:11px;color:var(
   <div class="banner gr">&#9992; <strong>Calculateur de salaire mensuel brut :</strong> SMMG toujours garanti &middot; Variables versees a M+1 &middot; Grilles NAO 2026 au 01/05/2026</div>
 
   <!-- PROFIL -->
-  <div class="card">
+  
+<div class="card">
     <div class="clabel gr">Votre profil</div>
     <div class="vgrid">
       <div class="vg"><label>Fonction</label>
@@ -226,20 +228,91 @@ footer{max-width:980px;margin:0 auto;text-align:center;font-size:11px;color:var(
     </div>
   </div>
 
-  <!-- VOLS DU MOIS -->
-  <div class="card">
-    <div class="clabel gr">Vols effectues ce mois</div>
-    <div style="font-size:12px;color:var(--mu);margin-bottom:10px;">Selectionnez le nombre de fois que vous avez effectue chaque vol (heures de nuit calculees en heure locale de depart)</div>
-    <div id="phv-vol-checks" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;"></div>
-    <div id="phv-hn-auto" style="display:none;margin-top:10px;font-size:13px;font-weight:600;color:var(--gr);padding:8px 12px;background:var(--gb);border-radius:var(--rs);"></div>
+  <!-- Rotations du mois -->
+  <div class="card"><div class="clabel gr">Rotations du mois</div>
+    <div style="font-size:12px;color:var(--mu);margin-bottom:.7rem;">Ajoutez chaque rotation pour cumuler heures de vol, heures de nuit et per diem &middot; Verse a M+1</div>
+    <div id="phv-rotas-list" style="margin-bottom:.7rem;"></div>
+    <div class="card" style="background:var(--sf);border:1.5px solid var(--bd);">
+      <div style="font-size:12px;font-weight:600;color:var(--gr);margin-bottom:.7rem;">+ Nouvelle rotation</div>
+      <div class="irow" style="margin-bottom:.5rem;"><label style="min-width:100px;font-size:12px;">Destination</label>
+        <select class="sel" id="phv-rota-dest" onchange="phvRotaDestChange()">
+          <option value="RUN">&#127796; RUN (2,97&#8364;/h)</option>
+          <option value="MIA">&#127756; MIA (3,82&#8364;/h)</option>
+          <option value="EWR">&#127752; EWR (3,82&#8364;/h)</option>
+          <option value="YUL">&#127809; YUL (2,97&#8364;/h)</option>
+          <option value="LAX">&#127774; LAX (3,82&#8364;/h)</option>
+          <option value="SFO">&#127963; SFO (3,82&#8364;/h)</option>
+          <option value="PPT">&#127954; PPT (3,82&#8364;/h)</option>
+        </select>
+      </div>
+      <div class="irow" style="margin-bottom:.5rem;" id="phv-rota-aller-row"><label style="min-width:100px;font-size:12px;">Vol aller</label>
+        <select class="sel" id="phv-rota-aller" onchange="phvRotaCalc()">
+          <option value="FB700">FB700 (19:55)</option>
+          <option value="FB702">FB702 (16:30)</option>
+          <option value="FB704">FB704 (07:05)</option>
+        </select>
+      </div>
+      <div class="irow" style="margin-bottom:.5rem;" id="phv-rota-retour-row"><label style="min-width:100px;font-size:12px;">Vol retour</label>
+        <select class="sel" id="phv-rota-retour" onchange="phvRotaCalc()">
+          <option value="FB701">FB701 (22:10)</option>
+          <option value="FB703">FB703 (08:30)</option>
+          <option value="FB705">FB705 (12:40)</option>
+        </select>
+      </div>
+      <div class="irow" style="margin-bottom:.5rem;" id="phv-rota-esc-simple-row"><label style="min-width:100px;font-size:12px;">Escale</label>
+        <div class="btns" id="phv-rota-esc-btns">
+          <button class="btn on" onclick="phvSetEsc(24)">24h</button>
+          <button class="btn" onclick="phvSetEsc(36)">36h</button>
+          <button class="btn" onclick="phvSetEsc(48)">48h</button>
+          <button class="btn" onclick="phvSetEsc(52)">52h</button>
+          <button class="btn" onclick="phvSetEsc(72)">72h</button>
+        </div>
+      </div>
+      <!-- Escales PPT -->
+      <div id="phv-rota-ppt-row" style="display:none;">
+        <div class="irow" style="margin-bottom:.4rem;"><label style="min-width:100px;font-size:12px;">Vol ORY-SFO</label>
+          <select class="sel" id="phv-ppt-vol" style="font-size:12px;" onchange="phvRotaCalc()">
+            <option value="FB710 ORY-SFO">FB710 (dep.18:30)</option>
+            <option value="FB714">FB714 (dep.11:30)</option>
+          </select>
+        </div>
+        <div class="irow" style="margin-bottom:.4rem;"><label style="min-width:100px;font-size:12px;">Escale SFO aller</label>
+          <div class="btns" id="phv-ppt-sfo1-btns">
+            <button class="btn on" onclick="phvSetPPT('sfo1',24)">24h</button>
+            <button class="btn" onclick="phvSetPPT('sfo1',48)">48h</button>
+            <button class="btn" onclick="phvSetPPT('sfo1',72)">72h</button>
+          </div>
+        </div>
+        <div class="irow" style="margin-bottom:.4rem;"><label style="min-width:100px;font-size:12px;">Escale PPT</label>
+          <div class="btns" id="phv-ppt-ppt-btns">
+            <button class="btn" onclick="phvSetPPT('ppt',24)">24h</button>
+            <button class="btn on" onclick="phvSetPPT('ppt',48)">48h</button>
+            <button class="btn" onclick="phvSetPPT('ppt',72)">72h</button>
+            <button class="btn" onclick="phvSetPPT('ppt',96)">96h</button>
+          </div>
+        </div>
+        <div class="irow" style="margin-bottom:.4rem;"><label style="min-width:100px;font-size:12px;">Escale SFO retour</label>
+          <div class="btns" id="phv-ppt-sfo2-btns">
+            <button class="btn on" onclick="phvSetPPT('sfo2',24)">24h</button>
+            <button class="btn" onclick="phvSetPPT('sfo2',48)">48h</button>
+            <button class="btn" onclick="phvSetPPT('sfo2',72)">72h</button>
+          </div>
+        </div>
+      </div>
+      <div id="phv-rota-preview" style="font-size:12px;color:var(--gr);margin-bottom:.7rem;padding:6px 10px;background:var(--gb);border-radius:var(--rs);display:none;"></div>
+      <button onclick="phvAddRota()" style="width:100%;padding:8px;border-radius:var(--rs);border:none;background:var(--gr);color:white;font-size:13px;font-weight:600;cursor:pointer;">+ Ajouter cette rotation</button>
   </div>
+
+
+  <!-- VOLS DU MOIS -->
+  
 
   <!-- HEURES -->
   <div class="card">
     <div class="clabel gr">Heures du mois</div>
-    <div class="irow"><label>Total heures de vol</label><input class="inp" type="number" id="hv-inp" placeholder="ex: 75" min="0" max="200" oninput="calcPHV()"><span class="unit">h</span></div>
+    <div class="irow"><label>Total heures de vol <span style="font-size:11px;color:var(--li)">(auto depuis rotations)</span></label><input class="inp" type="number" id="hv-inp" placeholder="ex: 75" min="0" max="200" oninput="calcPHV()"><span class="unit">h</span></div>
     <div class="irow">
-      <label>Heures de nuit <span style="font-size:11px;color:var(--li)">(auto si vols coches)</span></label>
+      <label>Heures de nuit <span style="font-size:11px;color:var(--li)">(auto depuis rotations)</span></label>
       <input class="inp" type="number" id="hn-inp" placeholder="auto" min="0" max="200" oninput="calcPHV()"><span class="unit">h</span>
     </div>
     <div class="irow"><label>Heures MEP</label><input class="inp" type="number" id="mep-inp" placeholder="ex: 4" min="0" max="50" oninput="calcPHV()"><span class="unit">h</span></div>
@@ -279,13 +352,18 @@ footer{max-width:980px;margin:0 auto;text-align:center;font-size:11px;color:var(
     <div class="irow"><label>CA VAB total du mois</label><input class="inp" type="number" id="vab-ca-phv" placeholder="ex: 8000" min="0" oninput="calcPHV()"><span class="unit">&#8364;</span></div>
     <div class="irow"><label>Nb PNC moyen a bord</label><div class="btns" id="vab-pnc-phv"><button class="btn ong" onclick="setVabPncPhv(12)">12</button><button class="btn" onclick="setVabPncPhv(10)">10</button><button class="btn" onclick="setVabPncPhv(9)">9</button><button class="btn" onclick="setVabPncPhv(8)">8</button><button class="btn" onclick="setVabPncPhv(7)">7</button></div></div>
     <div style="font-size:12px;color:var(--mu);margin-top:-0.4rem;">21% du CA / nb PNC &middot; Verse a M+1</div>
+    
   </div>
 
   <div class="mets" id="res-PHV"></div>
   <div id="tot-PHV"></div>
   <div id="tot-PHV-net"></div>
   <div class="note or" style="margin-top:.9rem">&#9888; Calcul en <strong>BRUT</strong>. Estimation nette indicative apres deduction de ~23% de charges sociales. PHV complementaires et majorations versees a M+1.</div>
-</div></div>
+</div>
+</div>
+
+
+</div>
 
 
 <!-- ══ PAGE ROTATION ══ -->
@@ -341,7 +419,7 @@ footer{max-width:980px;margin:0 auto;text-align:center;font-size:11px;color:var(
     </div>
   </div>
 
-  <div class="rot-section">
+  <div class="rot-section" id="rot-vols-normal">
     <div class="rot-title">&#9992; Vols de la rotation</div>
     <div class="vgrid">
       <div class="vg">
@@ -356,6 +434,38 @@ footer{max-width:980px;margin:0 auto;text-align:center;font-size:11px;color:var(
       </div>
     </div>
     <div id="hn-total-info" style="display:none;margin-top:.7rem;font-size:13px;font-weight:600;color:var(--gr);padding:8px 12px;background:var(--gb);border-radius:var(--rs);"></div>
+  </div>
+
+  <div class="rot-section" id="rot-vols-ppt" style="display:none;">
+    <div class="rot-title">&#9992; Vols de la rotation PPT (4 segments)</div>
+    <div class="vgrid">
+      <div class="vg">
+        <label>1. ORY &#8594; SFO</label>
+        <div class="btns" id="rppt-leg1">
+          <button class="btn ono" onclick="setRPptLeg(1,'FB710 ORY-SFO')">FB710 (18:30)</button>
+          <button class="btn" onclick="setRPptLeg(1,'FB714')">FB714 (11:30)</button>
+        </div>
+      </div>
+      <div class="vg">
+        <label>2. SFO &#8594; PPT</label>
+        <div class="btns" id="rppt-leg2">
+          <button class="btn ono" onclick="setRPptLeg(2,'FB710 SFO-PPT')">FB710 (23:20)</button>
+        </div>
+      </div>
+      <div class="vg">
+        <label>3. PPT &#8594; SFO</label>
+        <div class="btns" id="rppt-leg3">
+          <button class="btn ono" onclick="setRPptLeg(3,'FB711 PPT-SFO')">FB711 (07:00)</button>
+        </div>
+      </div>
+      <div class="vg">
+        <label>4. SFO &#8594; ORY</label>
+        <div class="btns" id="rppt-leg4">
+          <button class="btn ono" onclick="setRPptLeg(4,'FB711 SFO-ORY')">FB711 (20:30)</button>
+        </div>
+      </div>
+    </div>
+    <div id="rppt-hn-info" style="margin-top:.7rem;font-size:13px;font-weight:600;color:var(--gr);padding:8px 12px;background:var(--gb);border-radius:var(--rs);"></div>
   </div>
 
   <div class="rot-section">
@@ -411,6 +521,8 @@ footer{max-width:980px;margin:0 auto;text-align:center;font-size:11px;color:var(
 </footer>
 
 <script>
+var phvRotas=[];var phvRotaEsc=24;var phvPPTEsc={sfo1:24,ppt:48,sfo2:24};
+
 var CCL_PHV={1:22.33,2:22.78,3:23.23,4:23.71,5:24.19,6:24.65,7:25.16,8:25.66,9:26.17,10:26.7}; // NAO 2026 01/05/2026
 var CC_PHV={1:16.76,2:17.09,3:17.44,4:17.78,5:18.16,6:18.49,7:18.87,8:19.24,9:19.64,10:20.04}; // NAO 2026 01/05/2026
 var CCL_SMMG={1:2372.94,2:2420.77,3:2468.92,4:2518.86,5:2569.87,6:2619.79,7:2672.99,8:2726.51,9:2781.16,10:2871.86}; // NAO 2026 01/05/2026
@@ -422,7 +534,7 @@ var EQ_CCL={0:0,1:55,2:95,3:115,4:135};
 
 var UTC_OFFSET={'ORY':2,'RUN':4,'SFO':-7,'PPT':-10,'EWR':-4,'LAX':-7,'MIA':-4,'YUL':-4};
 function ltToUtc(dep,fromIata){var p=dep.split(':');var h=parseInt(p[0]),m=parseInt(p[1]);var off=UTC_OFFSET[fromIata]||0;var total=(h*60+m-off*60+1440)%1440;return ('0'+Math.floor(total/60)).slice(-2)+':'+('0'+(total%60)).slice(-2);}
-var VOLS={'FB700':{dep:'19:55',dur:'11h05',hn:8.0,from:'ORY',to:'RUN',spans:true,arr:'09:00'},'FB702':{dep:'16:30',dur:'11h05',hn:5.6,from:'ORY',to:'RUN',spans:true,arr:'05:35'},'FB704':{dep:'07:05',dur:'11h05',hn:0.0,from:'ORY',to:'RUN',spans:false,arr:'20:10'},'FB701':{dep:'22:10',dur:'11h20',hn:7.8,from:'RUN',to:'ORY',spans:true,arr:'07:30'},'FB703':{dep:'08:30',dur:'11h50',hn:0.0,from:'RUN',to:'ORY',spans:false,arr:'18:20'},'FB705':{dep:'12:40',dur:'11h50',hn:2.5,from:'RUN',to:'ORY',spans:false,arr:'22:30'},'FB710 ORY-SFO':{dep:'18:30',dur:'11h20',hn:7.8,from:'ORY',to:'SFO',spans:false,arr:'20:50'},'FB710 SFO-PPT':{dep:'23:20',dur:'05h20',hn:5.3,from:'SFO',to:'PPT',spans:true,arr:'04:40'},'FB711 PPT-SFO':{dep:'07:00',dur:'11h05',hn:0.0,from:'PPT',to:'SFO',spans:false,arr:'18:05'},'FB711 SFO-ORY':{dep:'20:30',dur:'10h50',hn:8.0,from:'SFO',to:'ORY',spans:true,arr:'16:20'},'FB714':{dep:'11:30',dur:'02h20',hn:0.0,from:'ORY',to:'SFO',spans:false,arr:'13:50'},'FB720':{dep:'18:50',dur:'08h10',hn:5.0,from:'ORY',to:'EWR',spans:false,arr:'21:00'},'FB721':{dep:'23:00',dur:'07h15',hn:7.0,from:'EWR',to:'ORY',spans:true,arr:'12:15'},'FB730':{dep:'14:50',dur:'11h40',hn:4.5,from:'ORY',to:'LAX',spans:false,arr:'17:30'},'FB731':{dep:'19:45',dur:'10h50',hn:8.0,from:'LAX',to:'ORY',spans:true,arr:'15:35'},'FB742':{dep:'17:00',dur:'09h50',hn:4.8,from:'ORY',to:'MIA',spans:false,arr:'20:50'},'FB743':{dep:'23:05',dur:'08h55',hn:6.9,from:'MIA',to:'ORY',spans:true,arr:'14:00'},'FB760':{dep:'19:20',dur:'07h40',hn:5.0,from:'ORY',to:'YUL',spans:false,arr:'21:00'},'FB761':{dep:'23:00',dur:'07h00',hn:7.0,from:'YUL',to:'ORY',spans:true,arr:'12:00'}};
+var VOLS={'FB700':{dep:'19:55',dur:'11h05',hn:8.0,from:'ORY',to:'RUN',spans:true,arr:'09:00'},'FB702':{dep:'16:30',dur:'11h05',hn:5.6,from:'ORY',to:'RUN',spans:true,arr:'05:35'},'FB704':{dep:'07:05',dur:'11h05',hn:0.0,from:'ORY',to:'RUN',spans:false,arr:'20:10'},'FB701':{dep:'22:10',dur:'11h20',hn:7.8,from:'RUN',to:'ORY',spans:true,arr:'07:30'},'FB703':{dep:'08:30',dur:'11h50',hn:0.0,from:'RUN',to:'ORY',spans:false,arr:'18:20'},'FB705':{dep:'12:40',dur:'11h50',hn:2.5,from:'RUN',to:'ORY',spans:false,arr:'22:30'},'FB710 ORY-SFO':{dep:'18:30',dur:'11h20',hn:7.8,from:'ORY',to:'SFO',spans:false,arr:'20:50'},'FB710 SFO-PPT':{dep:'23:20',dur:'05h20',hn:5.3,from:'SFO',to:'PPT',spans:true,arr:'04:40'},'FB711 PPT-SFO':{dep:'07:00',dur:'11h05',hn:0.0,from:'PPT',to:'SFO',spans:false,arr:'18:05'},'FB711 SFO-ORY':{dep:'20:30',dur:'10h50',hn:8.0,from:'SFO',to:'ORY',spans:true,arr:'16:20'},'FB714':{dep:'11:30',dur:'11h20',hn:0.0,from:'ORY',to:'SFO',spans:false,arr:'13:50'},'FB720':{dep:'18:50',dur:'08h10',hn:5.0,from:'ORY',to:'EWR',spans:false,arr:'21:00'},'FB721':{dep:'23:00',dur:'07h15',hn:7.0,from:'EWR',to:'ORY',spans:true,arr:'12:15'},'FB730':{dep:'14:50',dur:'11h40',hn:4.5,from:'ORY',to:'LAX',spans:false,arr:'17:30'},'FB731':{dep:'19:45',dur:'10h50',hn:8.0,from:'LAX',to:'ORY',spans:true,arr:'15:35'},'FB742':{dep:'17:00',dur:'09h50',hn:4.8,from:'ORY',to:'MIA',spans:false,arr:'20:50'},'FB743':{dep:'23:05',dur:'08h55',hn:6.9,from:'MIA',to:'ORY',spans:true,arr:'14:00'},'FB760':{dep:'19:20',dur:'07h40',hn:5.0,from:'ORY',to:'YUL',spans:false,arr:'21:00'},'FB761':{dep:'23:00',dur:'07h00',hn:7.0,from:'YUL',to:'ORY',spans:true,arr:'12:00'}};
 
 var DEST_AL={
   RUN:['FB700','FB702','FB704'],
@@ -571,7 +683,7 @@ function buildPhvVolChecks(){
     h+='<button onclick="setVolCount(&quot;'+num+'&quot;,1)" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--cyan);background:var(--cyan);color:white;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>';
     h+='</div></div>';
   });
-  document.getElementById('phv-vol-checks').innerHTML=h;
+  var chkEl=document.getElementById('phv-vol-checks');if(chkEl)chkEl.innerHTML=h;
 }
 var volCounts={};
 function setVolCount(num,delta){
@@ -619,6 +731,9 @@ function calcPHV(){
   PHVs.cls=parseInt(document.getElementById('cls-sel').value)||1;
   var hv=parseFloat(document.getElementById('hv-inp').value)||0;
   var hn=parseFloat(document.getElementById('hn-inp').value)||0;
+  // hv-inp et hn-inp contiennent deja le total des rotations (rempli par phvRenderRotas)
+  var phvPd=0;
+  phvRotas.forEach(function(r){phvPd+=r.pd;});
   var mep=parseFloat(document.getElementById('mep-inp').value)||0;
   var qrp=parseFloat(document.getElementById('qrp-inp').value)||0;
   var cp=parseFloat(document.getElementById('cp-inp').value)||0;
@@ -631,7 +746,7 @@ function calcPHV(){
   var telOn=document.getElementById('chk-tel')&&document.getElementById('chk-tel').checked;
   var uprankNb=0; // géré par profil CC/CCL
   var res=document.getElementById('res-PHV'),tot=document.getElementById('tot-PHV'),totn=document.getElementById('tot-PHV-net');
-  if(hv<=0&&mep<=0&&delegJ<=0&&delegDJ<=0&&formJ<=0&&formDJ<=0&&qrp<=0){res.innerHTML='';tot.innerHTML='';totn.innerHTML='';return;}
+  if(hv<=0&&mep<=0&&delegJ<=0&&delegDJ<=0&&formJ<=0&&formDJ<=0&&qrp<=0&&phvRotas.length===0){res.innerHTML='';tot.innerHTML='';totn.innerHTML='';return;}
   var phvR=getPhvRate();
   var smmg=getSmmg();
   if(phvR<=0){res.innerHTML='<div class="note or">Veuillez saisir votre valeur PHV/h.</div>';tot.innerHTML='';totn.innerHTML='';return;}
@@ -654,30 +769,42 @@ function calcPHV(){
   var primeTel=telOn?50:0;
   var primeUprank=0;
   var vabCaPhv=parseFloat((document.getElementById('vab-ca-phv')||{}).value)||0;
+  // Per diem
+  // phvPd et extraHv/hn calcules en debut de fonction
   var phvVab=vabCaPhv>0?(vabCaPhv*0.21/vabPncPhvVal):0;
-  var total=smmg+phvComp+majPalier+majSup+majNuit+phvMep+phvDeleg+phvForm+primeRepr+primeTel+primeUprank+phvVab;
+  var total=smmg+phvComp+majPalier+majSup+majNuit+phvMep+phvDeleg+phvForm+primeRepr+primeTel+primeUprank+phvVab+phvPd;
   var det='';
   det+='<div class="m"><div class="ml">SMMG garanti</div><div class="mv n">'+fmt(smmg)+'</div><div class="ms">'+PHVs.fn+(PHVs.fn!=='CCI'?' C'+PHVs.cls:'')+(absJ>0?' &middot; seuil '+seuilBase.toFixed(1)+'h':'')+'</div></div>';
   det+='<div class="m"><div class="ml">PHV/h</div><div class="mv">'+fi(phvR)+'&#8364;</div></div>';
   det+='<div class="m"><div class="ml">Heures volees</div><div class="mv">'+hv+'h'+(qrp>0?' +'+qrp+'h QRP':'')+'</div></div>';
   if(hn>0)det+='<div class="m"><div class="ml">H. de nuit</div><div class="mv">'+hn+'h</div></div>';
-  if(hcompl>0)det+='<div class="m"><div class="ml">PHV comp. ('+seuilBase.toFixed(0)+'e h+)</div><div class="mv gr">+'+fmt(phvComp)+'</div><div class="ms">'+hcompl.toFixed(1)+'h</div></div>';
-  if(majPalier>0)det+='<div class="m"><div class="ml">Maj. 68-75h (+15%)</div><div class="mv gr">+'+fmt(majPalier)+'</div></div>';
-  if(majSup>0)det+='<div class="m"><div class="ml">H. sup +76h (+25%)</div><div class="mv gr">+'+fmt(majSup)+'</div><div class="ms">'+hsup.toFixed(1)+'h</div></div>';
-  if(majNuit>0)det+='<div class="m"><div class="ml">Maj. nuit (+25%)</div><div class="mv gr">+'+fmt(majNuit)+'</div><div class="ms">'+hn+'h nuit</div></div>';
-  if(phvMep>0)det+='<div class="m"><div class="ml">MEP (0,5 PHV/h)</div><div class="mv gr">+'+fmt(phvMep)+'</div><div class="ms">'+mep+'h</div></div>';
-  if(phvDeleg>0)det+='<div class="m"><div class="ml">Delegation</div><div class="mv gr">+'+fmt(phvDeleg)+'</div><div class="ms">'+(delegJ>0?delegJ+'j ':'')+( delegDJ>0?delegDJ+'dj':'')+'</div></div>';
-  if(phvForm>0)det+='<div class="m"><div class="ml">Formation/recurrent</div><div class="mv gr">+'+fmt(phvForm)+'</div><div class="ms">'+(formJ>0?formJ+'j ':'')+( formDJ>0?formDJ+'dj':'')+'</div></div>';
+  if(hcompl>0)det+='<div class="m"><div class="ml">PHV comp. ('+seuilBase.toFixed(0)+'e h+)</div><div class="mv gr">+'+fmt(phvComp)+'</div><div class="ms">'+hcompl.toFixed(1)+'h &middot; M+1</div></div>';
+  if(majPalier>0)det+='<div class="m"><div class="ml">Maj. 68-75h (+15%)</div><div class="mv gr">+'+fmt(majPalier)+'</div><div class="ms">M+1</div></div>';
+  if(majSup>0)det+='<div class="m"><div class="ml">H. sup +76h (+25%)</div><div class="mv gr">+'+fmt(majSup)+'</div><div class="ms">'+hsup.toFixed(1)+'h &middot; M+1</div></div>';
+  if(majNuit>0)det+='<div class="m"><div class="ml">Maj. nuit (+25%)</div><div class="mv gr">+'+fmt(majNuit)+'</div><div class="ms">'+hn+'h nuit &middot; M+1</div></div>';
+  if(phvMep>0)det+='<div class="m"><div class="ml">MEP (0,5 PHV/h)</div><div class="mv gr">+'+fmt(phvMep)+'</div><div class="ms">'+mep+'h &middot; M+1</div></div>';
+  if(phvDeleg>0)det+='<div class="m"><div class="ml">Delegation</div><div class="mv gr">+'+fmt(phvDeleg)+'</div><div class="ms">'+(delegJ>0?delegJ+'j ':'')+( delegDJ>0?delegDJ+'dj ':'')+'&middot; M+1</div></div>';
+  if(phvForm>0)det+='<div class="m"><div class="ml">Formation/recurrent</div><div class="mv gr">+'+fmt(phvForm)+'</div><div class="ms">'+(formJ>0?formJ+'j ':'')+( formDJ>0?formDJ+'dj ':'')+'&middot; M+1</div></div>';
   if(primeRepr>0)det+='<div class="m"><div class="ml">Prime representation</div><div class="mv gr">+'+fmt(primeRepr)+'</div></div>';
   if(phvVab>0)det+='<div class="m"><div class="ml">VAB ('+vabPncPhvVal+' PNC)</div><div class="mv gr">+'+fmt(phvVab)+'</div><div class="ms">M+1</div></div>';
+  if(phvPd>0)det+='<div class="m"><div class="ml">Per diem rotations</div><div class="mv gr">+'+fmt(phvPd)+'</div><div class="ms">M+1</div></div>';
   if(primeTel>0)det+='<div class="m"><div class="ml">Forfait tel. CCL</div><div class="mv gr">+'+fmt(primeTel)+'</div></div>';
 
   if(mal>0)det+='<div class="m"><div class="ml">Arret maladie</div><div class="mv or">'+mal+'j</div><div class="ms">SMMG maintenu &middot; IJSS Secu en complement</div></div>';
   res.innerHTML=det;
-  var net=total*0.77;
-  tot.innerHTML='<div class="tot gr"><div><div class="tl">Salaire brut estime du mois</div><div class="ts">SMMG + variables verses a M+1 &middot; Approximatif</div></div><div class="tv">'+fmt(total)+'</div></div>';
-  totn.innerHTML='<div style="background:var(--gb);border:1px solid #A7F3D0;border-radius:var(--r);padding:1rem 1.4rem;margin-top:.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;"><div><div style="font-size:12.5px;color:#065F46;">Estimation salaire NET (apres ~23% charges)</div><div style="font-size:11px;color:#6EE7B7;margin-top:2px;">Indicatif uniquement &middot; Varie selon situation personnelle</div></div><div style="font-family:Space Grotesk,sans-serif;font-size:28px;font-weight:700;color:#065F46;">'+fmt(net)+'</div></div>';
-}
+  var totalM=smmg+majPalier+majNuit+primeRepr+primeTel;
+  var totalM1=phvComp+majSup+phvMep+phvDeleg+phvForm+primeUprank+phvVab+phvPd;
+  var netM=totalM*0.77;
+  var netM1=totalM1*0.77;
+  tot.innerHTML='<div class="tot gr" style="flex-direction:column;align-items:flex-start;gap:6px;">'
+    +'<div style="width:100%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'
+    +'<div><div class="tl">Verse ce mois (M)</div><div class="ts">SMMG + maj. nuit + primes fixes</div></div>'
+    +'<div class="tv" style="font-size:24px;">'+fmt(totalM)+'</div></div>'
+    +'<div style="width:100%;border-top:1px solid rgba(255,255,255,.2);padding-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'
+    +'<div><div class="tl">Verse M+1</div><div class="ts">PHV comp. + per diem + MEP + deleg. + VAB</div></div>'
+    +'<div class="tv" style="font-size:24px;">'+fmt(totalM1)+'</div></div>'
+    +'</div>';
+  }
 
 // ROTATION - vols aller/retour
 function buildRotVolBtns(dest){
@@ -756,7 +883,8 @@ function getRPhvRate(){
 function updateRotDest(){
   ROT.dest=document.getElementById('rdest-sel').value;
   document.getElementById('ppt-extras').style.display=ROT.dest==='PPT'?'block':'none';
-  buildRotVolBtns(ROT.dest);
+  toggleRPptSection();
+  if(ROT.dest!=='PPT')buildRotVolBtns(ROT.dest);
   calcRot();
 }
 function setREsc(h){ROT.esc=h;document.querySelectorAll('#resc-btns .btn').forEach(function(b){b.classList.toggle('ono',parseInt(b.textContent)===h);});calcRot();}
@@ -766,9 +894,13 @@ function setRPnc(n){ROT.vabPnc=n;document.querySelectorAll('#rvab-pnc .btn').for
 
 function calcRot(){
   ROT.cls=parseInt(document.getElementById('rcls-sel').value)||1;
-  ROT.hv=parseFloat(document.getElementById('rhv-inp').value)||0;
-  var hnVal=parseFloat(document.getElementById('rhn-inp').value);
-  if(!isNaN(hnVal))ROT.hn=hnVal;
+  if(ROT.dest==='PPT'){
+    updateRPptInfo(); // recalcule ROT.hv et ROT.hn depuis les 4 legs
+  } else {
+    ROT.hv=parseFloat(document.getElementById('rhv-inp').value)||0;
+    var hnVal=parseFloat(document.getElementById('rhn-inp').value);
+    if(!isNaN(hnVal))ROT.hn=hnVal;
+  }
   // MEP via checkboxes
   var mepAlChecked=document.getElementById('chk-mep-al').checked;
   var mepRetChecked=document.getElementById('chk-mep-ret').checked;
@@ -808,32 +940,32 @@ function calcRot(){
   }
   var total=perdiem+phvRot+majNuit+phvMep+decl+eq+uprank+aog+vab; // perdiem recalcule ci-dessus si PD_TABLE dispo
   if(ROT.hv<=0&&ROT.vabCa<=0&&!ROT.decl&&!ROT.aog&&ROT.eq===0&&ROT.mep<=0){det.innerHTML='';tot.innerHTML='';return;}
-  var lines='';
+  var lines='<div style="font-size:11px;color:var(--mu);margin-bottom:.6rem;padding:6px 10px;background:var(--ob);border-radius:var(--rs);">&#9888; Le PHV de base (jusqu\'a 70h/mois) est verse ce mois-ci. Per diem, majorations et primes (marquees <strong>M+1</strong>) sont versees le mois suivant.</div>';
   // Heures HOTAC exactes selon couple de vols
   if(ROT.volAl&&ROT.volRet&&PD_TABLE){
     var pdKeyRot=ROT.volAl+'_'+ROT.volRet;
     if(PD_TABLE[pdKeyRot]&&PD_TABLE[pdKeyRot][totalEsc]){
       var pdHoursRot=PD_TABLE[pdKeyRot][totalEsc];
       perdiem=pdHoursRot*pdRate;
-      lines+='<div class="det-line"><span class="lbl">Per diem ('+pdHoursRot+'h HOTAC x '+fi(pdRate)+'&#8364;/h)</span><span class="val c">+'+fmt(perdiem)+'</span></div>';
+      lines+='<div class="det-line"><span class="lbl">Per diem ('+pdHoursRot+'h HOTAC x '+fi(pdRate)+'&#8364;/h) <span class="m1-badge">M+1</span></span><span class="val c">+'+fmt(perdiem)+'</span></div>';
     } else {
-      lines+='<div class="det-line"><span class="lbl">Per diem (~'+Math.max(0,totalEsc-1)+'h x '+fi(pdRate)+'&#8364;/h)</span><span class="val c">+'+fmt(perdiem)+'</span></div>';
+      lines+='<div class="det-line"><span class="lbl">Per diem (~'+Math.max(0,totalEsc-1)+'h x '+fi(pdRate)+'&#8364;/h) <span class="m1-badge">M+1</span></span><span class="val c">+'+fmt(perdiem)+'</span></div>';
     }
   } else {
-    lines+='<div class="det-line"><span class="lbl">Per diem (~'+Math.max(0,totalEsc-1)+'h x '+fi(pdRate)+'&#8364;/h)</span><span class="val c">+'+fmt(perdiem)+'</span></div>';
+    lines+='<div class="det-line"><span class="lbl">Per diem (~'+Math.max(0,totalEsc-1)+'h x '+fi(pdRate)+'&#8364;/h) <span class="m1-badge">M+1</span></span><span class="val c">+'+fmt(perdiem)+'</span></div>';
   }
   if(ROT.hv>0)lines+='<div class="det-line"><span class="lbl">PHV vol ('+ROT.hv+'h x '+fi(phvR)+'&#8364;)</span><span class="val g">+'+fmt(phvRot)+'</span></div>';
-  if(majNuit>0)lines+='<div class="det-line"><span class="lbl">Maj. nuit +25% ('+ROT.hn+'h)</span><span class="val g">+'+fmt(majNuit)+'</span></div>';
-  if(phvMep>0)lines+='<div class="det-line"><span class="lbl">MEP ('+ROT.mep.toFixed(1)+'h vol x 0,5 PHV)</span><span class="val g">+'+fmt(phvMep)+'</span></div>';
-  if(decl>0)lines+='<div class="det-line"><span class="lbl">Prime declenchement</span><span class="val g">+'+fmt(decl)+'</span></div>';
-  if(eq>0)lines+='<div class="det-line"><span class="lbl">Prime equipage reduit (-'+ROT.eq+' PNC)</span><span class="val g">+'+fmt(eq)+'</span></div>';
-  if(uprank>0)lines+='<div class="det-line"><span class="lbl">Indemnite up-ranker</span><span class="val g">+'+fmt(uprank)+'</span></div>';
-  if(aog>0)lines+='<div class="det-line"><span class="lbl">AOG (2 PHV)</span><span class="val g">+'+fmt(aog)+'</span></div>';
+  if(majNuit>0)lines+='<div class="det-line"><span class="lbl">Maj. nuit +25% ('+ROT.hn+'h) <span class="m1-badge">M+1</span></span><span class="val g">+'+fmt(majNuit)+'</span></div>';
+  if(phvMep>0)lines+='<div class="det-line"><span class="lbl">MEP ('+ROT.mep.toFixed(1)+'h vol x 0,5 PHV) <span class="m1-badge">M+1</span></span><span class="val g">+'+fmt(phvMep)+'</span></div>';
+  if(decl>0)lines+='<div class="det-line"><span class="lbl">Prime declenchement <span class="m1-badge">M+1</span></span><span class="val g">+'+fmt(decl)+'</span></div>';
+  if(eq>0)lines+='<div class="det-line"><span class="lbl">Prime equipage reduit (-'+ROT.eq+' PNC) <span class="m1-badge">M+1</span></span><span class="val g">+'+fmt(eq)+'</span></div>';
+  if(uprank>0)lines+='<div class="det-line"><span class="lbl">Indemnite up-ranker <span class="m1-badge">M+1</span></span><span class="val g">+'+fmt(uprank)+'</span></div>';
+  if(aog>0)lines+='<div class="det-line"><span class="lbl">AOG (2 PHV) <span class="m1-badge">M+1</span></span><span class="val g">+'+fmt(aog)+'</span></div>';
   var vabLabel='Commission VAB';
   if(mepAl&&mepRet)vabLabel='Commission VAB (exclu - 2 vols en MEP)';
   else if(mepAl)vabLabel='Commission VAB (1 vol en MEP - 50%)';
   else if(mepRet)vabLabel='Commission VAB (1 vol en MEP - 50%)';
-  if(vab>0)lines+='<div class="det-line"><span class="lbl">'+vabLabel+'</span><span class="val g">+'+fmt(vab)+'</span></div>';
+  if(vab>0)lines+='<div class="det-line"><span class="lbl">'+vabLabel+' <span class="m1-badge">M+1</span></span><span class="val g">+'+fmt(vab)+'</span></div>';
   if((mepAl||mepRet)&&ROT.vabCa>0&&vab===0)lines+='<div class="det-line"><span class="lbl">Commission VAB (exclu - 2 vols en MEP)</span><span class="val" style="color:var(--mu)">0,00 €</span></div>';
   det.innerHTML='<div class="rot-section"><div class="rot-title">&#128202; Detail de la rotation</div>'+lines+'</div>';
   // Separation M et M+1
@@ -1017,6 +1149,7 @@ function rRender(){
     var delBtn=ev.target.closest('[data-del-rota]');
     if(delBtn){ev.stopPropagation();rDeleteRota(delBtn.getAttribute('data-del-rota'));return;}
   };
+  rUpdateRecap();
 }
 function rOpen(key){
   rSelDate=key;rSelType='vol';
@@ -1080,8 +1213,9 @@ function rAddEntry(){
   rRenderEnt();rRender();
 }
 function rSaveBloc5(){
-  var start=document.getElementById('rbloc5-date').value;if(!start)return;
-  var dt=new Date(start+'T12:00:00');
+  var rawStart=document.getElementById('rbloc5-date').value;if(!rawStart)return;
+  var sp=rawStart.split('-');var start=parseInt(sp[0])+'-'+parseInt(sp[1])+'-'+parseInt(sp[2]);
+  var dt=new Date(rawStart+'T12:00:00');
   for(var i=0;i<5;i++){var k=rKey(dt.getFullYear(),dt.getMonth()+1,dt.getDate());rData[k]=[{type:'bloc_off',note:'Bloc J'+(i+1)+'/5'}];dt.setDate(dt.getDate()+1);}
   document.getElementById('rbloc5').style.display='none';rRender();
 }
@@ -1116,7 +1250,6 @@ window.addEventListener('load',function(){
   // rmodal-types - gere par onclick directs
   // Onglets roster (delegation)
   // data-rt2 - gere par onclick directs sur les boutons
-  initB2B();
   // Situations declenchement - gere par onclick directs sur les boutons
   // Uber - gere par onclick directs sur les boutons
   // Toggle LT/UTC
@@ -1124,34 +1257,8 @@ window.addEventListener('load',function(){
   // Render initial
   setTimeout(function(){rRender();},200);
 
-  // Boutons ajout rapide
-  var qAddType=null;
-  document.querySelectorAll('[data-qadd]').forEach(function(btn){
-    btn.onclick=function(){
-      qAddType=this.getAttribute('data-qadd');
-      var titles={vol:'Ajouter un vol',off:'Ajouter un jour OFF',cp:'Ajouter CP',repos:'Ajouter repos post-courrier',deleg:'Ajouter delegation',form:'Ajouter formation',req_off:'Ajouter Requested OFF',hotac:'Ajouter HOTAC',blanc:'Ajouter blanc'};
-      document.getElementById('rquick-title').textContent=titles[qAddType]||'Ajouter';
-      var isVol=qAddType==='vol';
-      document.getElementById('rquick-vol-sec').style.display=isVol?'block':'none';
-      document.getElementById('rquick-note').style.display=isVol?'none':'block';
-      if(isVol){var opts='';Object.keys(VOLS).forEach(function(n){var v=VOLS[n];var num=n.split(' ')[0];opts+='<option value="'+n+'">'+num+' '+v.from+'→'+v.to+' dep.'+v.dep+'</option>';});document.getElementById('rquick-vol-sel').innerHTML=opts;}
-      document.getElementById('rquick-modal').style.display='flex';
-    };
-  });
-  document.getElementById('rquick-apply').onclick=function(){
-    var date=document.getElementById('rquick-date').value;
-    if(!date)return;
-    var note=qAddType==='vol'?document.getElementById('rquick-vol-sel').value:document.getElementById('rquick-note').value;
-    if(!rData[date])rData[date]=[];
-    rData[date].push({type:qAddType,note:note});
-    // Si vol avec spans -> J+1 auto
-    if(qAddType==='vol'&&VOLS[note]&&VOLS[note].spans){
-      var nk=rOff(date,1);if(!rData[nk])rData[nk]=[];
-      rData[nk].push({type:'hotac',note:note+' arr.'+VOLS[note].arr});
-    }
-    document.getElementById('rquick-modal').style.display='none';
-    rRender();
-  };
+  // Boutons ajout rapide - geres par onclick directs
+
 
   // Bouton rotation
   var btnRota=document.getElementById('btn-rota');
@@ -1300,12 +1407,20 @@ document.addEventListener('DOMContentLoaded',function(){
     entries.push({offset:oryDep+1,type:'hotac',note:'arr. ORY 16:20'});
     var bloc=oryDep+2;
     for(var l=0;l<5;l++)entries.push({offset:bloc+l,type:'bloc_off',note:'Bloc OFF post-PPT J'+(l+1)+'/5'});
+    var s=pptEscales;
+    var th=s.sfo1+s.ppt+s.sfo2;
+    var hotacPPT=Math.max(0,th-1);
+    var pdPPT=hotacPPT*3.82;
+    var sp=start.split('-');var startN=parseInt(sp[0])+'-'+parseInt(sp[1])+'-'+parseInt(sp[2]);
+    var rotaIdPPT='PPT-'+startN;
     entries.forEach(function(e){
       var k2=rOff(start,e.offset);
       if(!rData[k2])rData[k2]=[];
       var already=rData[k2].some(function(x){return x.note===e.note;});
-      if(!already)rData[k2].push({type:e.type,note:e.note});
+      if(!already)rData[k2].push({type:e.type,note:e.note,rotaId:rotaIdPPT,rotaKey:'PPT'});
     });
+    if(!window.rotaRegistry)window.rotaRegistry={};
+    window.rotaRegistry[rotaIdPPT]={key:'PPT',start:startN,info:{hv:38.58,hn:21.1,on:'ON10+',pd:pdPPT,label:'PPT SFO'+s.sfo1+'h/PPT'+s.ppt+'h/SFO'+s.sfo2+'h'}};
     document.getElementById('ppt-flex-modal').style.display='none';
     rRender();
   };
@@ -1381,7 +1496,14 @@ function b2bApply(){
   addE(hotacOff,'hotac','HOTAC ORY - B2B');
   r2.jours.forEach(function(j){addE(r2Start+j.offset,j.type,j.note);});
   if(!window.rotaRegistry)window.rotaRegistry={};
-  window.rotaRegistry[rotaId]={key:'B2B',start:start,info:{label:'B2B '+b2bR1+'+'+b2bR2}};
+  var info1=ROTAS_INFO[b2bR1]||{pd:0,hv:0,hn:0};
+  var info2=ROTAS_INFO[b2bR2]||{pd:0,hv:0,hn:0};
+  window.rotaRegistry[rotaId]={key:'B2B',start:start,info:{
+    label:'B2B '+b2bR1+'+'+b2bR2,
+    pd:(info1.pd||0)+(info2.pd||0),
+    hv:(info1.hv||0)+(info2.hv||0),
+    hn:(info1.hn||0)+(info2.hn||0)
+  }};
   document.getElementById('b2b-modal').style.display='none';
   b2bR1=null;b2bR2=null;
   rRender();
@@ -1412,8 +1534,9 @@ function b2bApply(){
   });
   var mjApply=document.getElementById('multijours-apply');
   if(mjApply)mjApply.onclick=function(){
-    var start=document.getElementById('multijours-start').value;
-    if(!start)return;
+    var rawS=document.getElementById('multijours-start').value;
+    if(!rawS)return;
+    var sp2=rawS.split('-');var start=parseInt(sp2[0])+'-'+parseInt(sp2[1])+'-'+parseInt(sp2[2]);
     for(var i=0;i<multiNb;i++){
       var k=rOff(start,i);
       if(!rData[k])rData[k]=[];
@@ -1474,18 +1597,40 @@ function rUpdateRecap(){
       if(e.type==='off'||e.type==='bloc_off')totalOff++;
     });
   });
-  // Per diem depuis rotaRegistry
+  // Per diem depuis rotaRegistry avec calcul exact
   if(window.rotaRegistry){
     Object.keys(window.rotaRegistry).forEach(function(rid){
       var r=window.rotaRegistry[rid];
-      var info=ROTAS_INFO[r.key];
-      if(info&&info.pd)totalPd+=info.pd;
+      if(!r||!r.info)return;
+      // Utiliser le pd stocké dans l'info si disponible
+      if(r.info.pd)totalPd+=r.info.pd;
     });
+  }
+  // Fallback : estimer per diem depuis les vols du mois
+  if(totalPd===0&&totalVols>0){
+    // Chercher les couples aller/retour
+    var volsThisMonth=[];
+    Object.keys(rData).forEach(function(k){
+      var parts=k.split('-');
+      if(parseInt(parts[0])!==rYear||parseInt(parts[1])!==rMonth+1)return;
+      (rData[k]||[]).forEach(function(e){
+        if(e.type==='vol'&&VOLS[e.note])volsThisMonth.push({note:e.note,vol:VOLS[e.note]});
+      });
+    });
+    // Estimer per diem : total heures nuit * taux approx
+    var runVols=volsThisMonth.filter(function(v){return v.vol.from==='RUN'||v.vol.to==='RUN';});
+    var usaVols=volsThisMonth.filter(function(v){return v.vol.from!=='RUN'&&v.vol.to!=='RUN'&&v.vol.from!=='ORY'&&v.vol.to!=='ORY'||v.vol.from==='SFO'||v.vol.to==='SFO'||v.vol.from==='PPT'||v.vol.to==='PPT';});
+    totalPd+=runVols.length>0?(runVols.length*35*2.97/2):0;
+    totalPd+=usaVols.length>0?(usaVols.length*24*3.82/2):0;
   }
   var recap=document.getElementById('cal-recap');
   var content=document.getElementById('cal-recap-content');
   if(!recap||!content)return;
-  if(totalVols===0&&totalHotac===0&&totalOff===0){recap.style.display='none';return;}
+  var hasAnyEntry=Object.keys(rData).some(function(k){
+    var parts=k.split('-');
+    return parseInt(parts[0])===rYear&&parseInt(parts[1])===rMonth+1&&rData[k].length>0;
+  });
+  if(!hasAnyEntry){recap.style.display='none';return;}
   recap.style.display='block';
   content.innerHTML=
     '<div><span style="color:rgba(255,255,255,.5);">Vols</span><br><strong style="color:white;font-size:14px;">'+totalVols+'</strong></div>'+
@@ -1531,10 +1676,49 @@ function runFlexPreview(){
   lines+='<br><strong>HN : '+hvTotal.toFixed(1)+'h &middot; Per diem est. : '+pd.toFixed(0)+'&#8364;</strong>';
   p.innerHTML=lines;p.style.display='block';
 }
-// runApplyFn - gere par onclick direct);
+// runApplyFn - gere par onclick direct
+document.addEventListener('DOMContentLoaded', function(){
+
+  var r1grid=document.getElementById('b2b-r1-btns');
+  var r2grid=document.getElementById('b2b-r2-btns');
+  var startEl=document.getElementById('b2b-start');
+  if(r1grid)r1grid.addEventListener('click',function(ev){
+    var b=ev.target.closest('[data-b2br1]');if(!b)return;
+    b2bR1=b.getAttribute('data-b2br1');
+    r1grid.querySelectorAll('.btn').forEach(function(x){x.className='btn';});
+    b.className='btn on';
+    var sel=document.getElementById('b2b-r1-sel');
+    if(sel){sel.textContent='Rotation 1 : '+(ROTAS[b2bR1]?ROTAS[b2bR1].label:b2bR1);sel.style.display='block';}
+    b2bPreview();
+  });
+  if(r2grid)r2grid.addEventListener('click',function(ev){
+    var b=ev.target.closest('[data-b2br2]');if(!b)return;
+    b2bR2=b.getAttribute('data-b2br2');
+    r2grid.querySelectorAll('.btn').forEach(function(x){x.className='btn';});
+    b.className='btn on';
+    var sel=document.getElementById('b2b-r2-sel');
+    if(sel){sel.textContent='Rotation 2 : '+(ROTAS[b2bR2]?ROTAS[b2bR2].label:b2bR2);sel.style.display='block';}
+    b2bPreview();
+  });
+  if(startEl)startEl.addEventListener('input',function(){b2bPreview();});
+  var applyBtn=document.getElementById('b2b-apply');
+  if(applyBtn)applyBtn.addEventListener('click',function(){b2bApply();});
+
+});
 
 
 var rQuickType='off';
+
+function rAddVol(){rQuickAdd('vol');}
+function rAddOff(){rQuickAdd('off');}
+function rAddCp(){rQuickAdd('cp');}
+function rAddRepos(){rQuickAdd('repos');}
+function rAddDeleg(){rQuickAdd('deleg');}
+function rAddForm(){rQuickAdd('form');}
+function rAddReqOff(){rQuickAdd('req_off');}
+function rAddHotac(){rQuickAdd('hotac');}
+function rAddBlanc(){rQuickAdd('blanc');}
+
 function rQuickAdd(type){
   rQuickType=type;
   var titles={vol:'Ajouter un vol',off:'Ajouter un jour OFF',cp:'Ajouter CP',
@@ -1566,8 +1750,11 @@ function rQuickAdd(type){
   if(modal)modal.style.display='flex';
 }
 function rQuickSave(){
-  var date=document.getElementById('rquick-date').value;
-  if(!date)return;
+  var rawDate=document.getElementById('rquick-date').value;
+  if(!rawDate)return;
+  // Normaliser la date au format rKey (sans zero devant mois/jour)
+  var dp=rawDate.split('-');
+  var date=parseInt(dp[0])+'-'+parseInt(dp[1])+'-'+parseInt(dp[2]);
   var isVol=rQuickType==='vol';
   var note=isVol?document.getElementById('rquick-vol-sel').value:document.getElementById('rquick-note').value;
   if(!rData[date])rData[date]=[];
@@ -1648,6 +1835,187 @@ function runApplyFn(){
   rRender();
 }
 
+
+var phvRotas=[];
+var phvRotaEsc=24;
+var phvPPTEsc={sfo1:24,ppt:48,sfo2:24};
+var PHV_ROTA_VOLS={
+  RUN:{rate:2.97,allers:['FB700','FB702','FB704'],retours:['FB701','FB703','FB705']},
+  MIA:{rate:3.82,allers:['FB742'],retours:['FB743']},
+  EWR:{rate:3.82,allers:['FB720'],retours:['FB721']},
+  YUL:{rate:2.97,allers:['FB760'],retours:['FB761']},
+  LAX:{rate:3.82,allers:['FB730'],retours:['FB731']},
+  SFO:{rate:3.82,allers:['FB710 ORY-SFO','FB714'],retours:['FB711 SFO-ORY']},
+  PPT:{rate:3.82,allers:[],retours:[]}
+};
+function phvSetEsc(h){
+  phvRotaEsc=h;
+  document.querySelectorAll('#phv-rota-esc-btns .btn').forEach(function(b){b.className='btn'+(parseInt(b.textContent)===h?' on':'');});
+  phvRotaCalc();
+}
+function phvSetPPT(key,h){
+  phvPPTEsc[key]=h;
+  document.querySelectorAll('#phv-ppt-'+key+'-btns .btn').forEach(function(b){b.className='btn'+(parseInt(b.textContent)===h?' on':'');});
+  phvRotaCalc();
+}
+function phvRotaDestChange(){
+  var dest=document.getElementById('phv-rota-dest').value;
+  var cfg=PHV_ROTA_VOLS[dest];
+  if(!cfg)return;
+  var allerRow=document.getElementById('phv-rota-aller-row');
+  var retourRow=document.getElementById('phv-rota-retour-row');
+  var escSimple=document.getElementById('phv-rota-esc-simple-row');
+  var escPPT=document.getElementById('phv-rota-ppt-row');
+  var isPPT=dest==='PPT';
+  // PPT : cacher vols aller/retour et escale simple, afficher escales PPT
+  if(allerRow)allerRow.style.display=isPPT?'none':(dest==='RUN'?'flex':'none');
+  if(retourRow)retourRow.style.display=isPPT?'none':(dest==='RUN'?'flex':'none');
+  if(escSimple)escSimple.style.display=isPPT?'none':'flex';
+  if(escPPT)escPPT.style.display=isPPT?'block':'none';
+  if(!isPPT&&cfg.allers.length>0){
+    var allerSel=document.getElementById('phv-rota-aller');
+    var retourSel=document.getElementById('phv-rota-retour');
+    allerSel.innerHTML=cfg.allers.map(function(v){var vol=VOLS[v];return '<option value="'+v+'">'+v+(vol?' dep.'+vol.dep:'')+'</option>';}).join('');
+    retourSel.innerHTML=cfg.retours.map(function(v){var vol=VOLS[v];return '<option value="'+v+'">'+v+(vol?' dep.'+vol.dep:'')+'</option>';}).join('');
+  }
+  phvRotaCalc();
+}
+function phvRotaCalc(){
+  var dest=document.getElementById('phv-rota-dest').value;
+  var cfg=PHV_ROTA_VOLS[dest];if(!cfg)return;
+  var prev=document.getElementById('phv-rota-preview');
+  if(dest==='PPT'){
+    var s=phvPPTEsc;
+    var pptVol=document.getElementById('phv-ppt-vol')?document.getElementById('phv-ppt-vol').value:'FB710 ORY-SFO';
+    var volSfo=VOLS[pptVol]||{};
+    var volSfoPpt=VOLS['FB710 SFO-PPT']||{};
+    var volPptSfo=VOLS['FB711 PPT-SFO']||{};
+    var volSfoOry=VOLS['FB711 SFO-ORY']||{};
+    function durH(v){if(!v.dur)return 0;var dp=v.dur.split('h');return parseInt(dp[0])+(parseInt(dp[1]||0)/60);}
+    var hvPPT=durH(volSfo)+durH(volSfoPpt)+durH(volPptSfo)+durH(volSfoOry);
+    var hnPPT=(volSfo.hn||0)+(volSfoPpt.hn||0)+(volPptSfo.hn||0)+(volSfoOry.hn||0);
+    var th=s.sfo1+s.ppt+s.sfo2;
+    var hotacH=Math.max(0,th-1);
+    var pd=hotacH*3.82;
+    if(prev){prev.innerHTML='PPT SFO'+s.sfo1+'h / PPT'+s.ppt+'h / SFO'+s.sfo2+'h &middot; '+hvPPT.toFixed(1)+'h vol &middot; '+hnPPT.toFixed(1)+'h nuit &middot; '+hotacH+'h HOTAC = <strong>'+pd.toFixed(2)+'&#8364; PD</strong>';prev.style.display='block';}
+    return;
+  }
+  var va=document.getElementById('phv-rota-aller').value;
+  var vr=document.getElementById('phv-rota-retour').value;
+  var volA=VOLS[va]||{};var volR=VOLS[vr]||{};
+  var hvVol=0;
+  if(volA.dur){var dp=volA.dur.split('h');hvVol+=parseInt(dp[0])+(parseInt(dp[1]||0)/60);}
+  if(volR.dur){var dp2=volR.dur.split('h');hvVol+=parseInt(dp2[0])+(parseInt(dp2[1]||0)/60);}
+  var hnTotal=(volA.hn||0)+(volR.hn||0);
+  var pdKey=va+'_'+vr;
+  var hotacH=PD_TABLE&&PD_TABLE[pdKey]&&PD_TABLE[pdKey][phvRotaEsc]?PD_TABLE[pdKey][phvRotaEsc]:Math.max(0,phvRotaEsc-1);
+  var pd=hotacH*cfg.rate;
+  if(prev){prev.innerHTML=dest+' '+phvRotaEsc+'h &middot; '+hvVol.toFixed(1)+'h vol &middot; '+hnTotal.toFixed(1)+'h nuit &middot; '+hotacH+'h HOTAC = <strong>'+pd.toFixed(2)+'&#8364; PD</strong>';prev.style.display='block';}
+}
+
+function phvAddRota(){
+  var dest=document.getElementById('phv-rota-dest').value;
+  var cfg=PHV_ROTA_VOLS[dest];if(!cfg)return;
+  var hvVol=0,hnTotal=0,hotacH=0,pd=0,label='';
+  if(dest==='PPT'){
+    var s=phvPPTEsc;
+    var pptVol=document.getElementById('phv-ppt-vol')?document.getElementById('phv-ppt-vol').value:'FB710 ORY-SFO';
+    var volSfo=VOLS[pptVol]||{};
+    var volSfoPpt=VOLS['FB710 SFO-PPT']||{};
+    var volPptSfo=VOLS['FB711 PPT-SFO']||{};
+    var volSfoOry=VOLS['FB711 SFO-ORY']||{};
+    function durH2(v){if(!v.dur)return 0;var dp=v.dur.split('h');return parseInt(dp[0])+(parseInt(dp[1]||0)/60);}
+    var th=s.sfo1+s.ppt+s.sfo2;
+    hotacH=Math.max(0,th-1);
+    pd=hotacH*3.82;
+    hvVol=durH2(volSfo)+durH2(volSfoPpt)+durH2(volPptSfo)+durH2(volSfoOry);
+    hnTotal=(volSfo.hn||0)+(volSfoPpt.hn||0)+(volPptSfo.hn||0)+(volSfoOry.hn||0);
+    label='PPT('+pptVol.split(' ')[0]+') SFO'+s.sfo1+'h/PPT'+s.ppt+'h/SFO'+s.sfo2+'h';
+  } else {
+    var va=document.getElementById('phv-rota-aller').value;
+    var vr=document.getElementById('phv-rota-retour').value;
+    var volA=VOLS[va]||{};var volR=VOLS[vr]||{};
+    if(volA.dur){var dp=volA.dur.split('h');hvVol+=parseInt(dp[0])+(parseInt(dp[1]||0)/60);}
+    if(volR.dur){var dp2=volR.dur.split('h');hvVol+=parseInt(dp2[0])+(parseInt(dp2[1]||0)/60);}
+    hnTotal=(volA.hn||0)+(volR.hn||0);
+    var pdKey=va+'_'+vr;
+    hotacH=PD_TABLE&&PD_TABLE[pdKey]&&PD_TABLE[pdKey][phvRotaEsc]?PD_TABLE[pdKey][phvRotaEsc]:Math.max(0,phvRotaEsc-1);
+    pd=hotacH*cfg.rate;
+    label=dest+' '+phvRotaEsc+'h';
+  }
+  phvRotas.push({dest:dest,label:label,hotac:hotacH,hv:hvVol,hn:hnTotal,pd:pd,rate:cfg.rate});
+  phvRenderRotas();
+  calcPHV();
+}
+function phvRemoveRota(i){
+  phvRotas.splice(i,1);
+  phvRenderRotas();
+  calcPHV();
+}
+function phvRenderRotas(){
+  var el=document.getElementById('phv-rotas-list');
+  if(!el)return;
+  if(phvRotas.length===0){
+    el.innerHTML='<div style="font-size:12px;color:var(--mu);padding:6px 0;">Aucune rotation ajoutee</div>';
+    // Reset heures auto
+    var hvEl=document.getElementById('hv-inp');
+    var hnEl=document.getElementById('hn-inp');
+    if(hvEl&&!hvEl.dataset.manual)hvEl.value='';
+    if(hnEl&&!hnEl.dataset.manual)hnEl.value='';
+    return;
+  }
+  var totalHv=0,totalHn=0;
+  var h='';
+  phvRotas.forEach(function(r,i){
+    totalHv+=r.hv||0;
+    totalHn+=r.hn||0;
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;padding:8px 10px;background:var(--gb);border-radius:var(--rs);border:1px solid #A7F3D0;">';
+    h+='<div style="flex:1;">';
+    h+='<div style="font-size:12px;font-weight:600;color:#065F46;">'+(r.label||r.dest+' '+r.esc+'h')+'</div>';
+    h+='<div style="font-size:11px;color:#065F46;">'+r.hv.toFixed(1)+'h vol &middot; '+r.hn.toFixed(1)+'h nuit &middot; '+(r.hotac||0)+'h HOTAC = '+r.pd.toFixed(2)+'&#8364; PD</div>';
+    h+='</div>';
+    h+='<button onclick="phvRemoveRota('+i+')" style="background:#EF4444;border:none;color:white;border-radius:3px;padding:3px 8px;cursor:pointer;font-size:12px;">&#10005;</button>';
+    h+='</div>';
+  });
+  el.innerHTML=h;
+  // Mettre a jour les champs HV et HN automatiquement
+  var hvEl=document.getElementById('hv-inp');
+  var hnEl=document.getElementById('hn-inp');
+  if(hvEl){hvEl.value=totalHv>0?totalHv.toFixed(1):'';}
+  if(hnEl){hnEl.value=totalHn>0?totalHn.toFixed(1):'';}
+  // Label update
+  var hvLabel=document.querySelector('label[for="hv-inp"]');
+}
+
+
+// ════ PPT 4 LEGS ════
+var RPPT={leg1:'FB710 ORY-SFO',leg2:'FB710 SFO-PPT',leg3:'FB711 PPT-SFO',leg4:'FB711 SFO-ORY'};
+function setRPptLeg(legNum,volKey){
+  RPPT['leg'+legNum]=volKey;
+  document.querySelectorAll('#rppt-leg'+legNum+' .btn').forEach(function(b){
+    b.classList.toggle('ono', b.getAttribute('onclick').indexOf("'"+volKey+"'")>=0);
+  });
+  updateRPptInfo();
+  calcRot();
+}
+function updateRPptInfo(){
+  var v1=VOLS[RPPT.leg1]||{},v2=VOLS[RPPT.leg2]||{},v3=VOLS[RPPT.leg3]||{},v4=VOLS[RPPT.leg4]||{};
+  function durH(v){if(!v.dur)return 0;var dp=v.dur.split('h');return parseInt(dp[0])+(parseInt(dp[1]||0)/60);}
+  var hv=durH(v1)+durH(v2)+durH(v3)+durH(v4);
+  var hn=(v1.hn||0)+(v2.hn||0)+(v3.hn||0)+(v4.hn||0);
+  ROT.hv=hv; ROT.hn=hn;
+  var el=document.getElementById('rppt-hn-info');
+  if(el)el.innerHTML='&#10003; Total heures de vol PPT : <strong>'+hv.toFixed(1)+'h</strong> &middot; heures de nuit : <strong>'+hn.toFixed(1)+'h</strong>';
+}
+function toggleRPptSection(){
+  var isPPT=ROT.dest==='PPT';
+  var normalEl=document.getElementById('rot-vols-normal');
+  var pptEl=document.getElementById('rot-vols-ppt');
+  if(normalEl)normalEl.style.display=isPPT?'none':'block';
+  if(pptEl)pptEl.style.display=isPPT?'block':'none';
+  if(isPPT)updateRPptInfo();
+}
+
 </script>
 
 <!-- PAGE MON ROSTER -->
@@ -1668,13 +2036,13 @@ function runApplyFn(){
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.7rem;">
         <button class="btn" id="btn-rota" onclick="document.getElementById('rrota-modal').style.display='flex'" style="font-size:11px;padding:4px 9px;background:var(--cyan);color:white;border-color:var(--cyan);">&#9992; Rotation</button>
         <button class="btn ono" id="btn-bloc5" onclick="document.getElementById('rbloc5').style.display='flex'" style="font-size:11px;padding:4px 9px;">&#128308; Bloc 5j</button>
-        <button class="btn" data-qadd="vol" onclick="rQuickAdd('vol')" style="font-size:11px;padding:4px 9px;">+ Vol</button>
-        <button class="btn" data-qadd="cp" onclick="rQuickAdd('cp')" style="font-size:11px;padding:4px 9px;">+ CP</button>
-        <button class="btn" data-qadd="repos" onclick="rQuickAdd('repos')" style="font-size:11px;padding:4px 9px;">+ Repos</button>
-        <button class="btn" data-qadd="deleg" onclick="rQuickAdd('deleg')" style="font-size:11px;padding:4px 9px;">+ Deleg.</button>
-        <button class="btn" data-qadd="form" onclick="rQuickAdd('form')" style="font-size:11px;padding:4px 9px;">+ Form.</button>
-        <button class="btn" data-qadd="req_off" onclick="rQuickAdd('req_off')" style="font-size:11px;padding:4px 9px;">+ Req.OFF</button>
-        <button class="btn" data-qadd="hotac" onclick="rQuickAdd('hotac')" style="font-size:11px;padding:4px 9px;">+ HOTAC</button>
+        <button class="btn" data-qadd="vol" onclick="rAddVol()" style="font-size:11px;padding:4px 9px;">+ Vol</button>
+        <button class="btn" data-qadd="cp" onclick="rAddCp()" style="font-size:11px;padding:4px 9px;">+ CP</button>
+        <button class="btn" data-qadd="repos" onclick="rAddRepos()" style="font-size:11px;padding:4px 9px;">+ Repos</button>
+        <button class="btn" data-qadd="deleg" onclick="rAddDeleg()" style="font-size:11px;padding:4px 9px;">+ Deleg.</button>
+        <button class="btn" data-qadd="form" onclick="rAddForm()" style="font-size:11px;padding:4px 9px;">+ Form.</button>
+        <button class="btn" data-qadd="req_off" onclick="rAddReqOff()" style="font-size:11px;padding:4px 9px;">+ Req.OFF</button>
+        <button class="btn" data-qadd="hotac" onclick="rAddHotac()" style="font-size:11px;padding:4px 9px;">+ HOTAC</button>
         <button class="btn" id="btn-b2b" onclick="document.getElementById('b2b-modal').style.display='flex'" style="font-size:11px;padding:4px 9px;background:#7C3AED;color:white;border-color:#7C3AED;">&#8646; B2B</button>
         <button class="btn" id="btn-multioff" onclick="multiType='off';document.getElementById('multijours-title').textContent='Ajouter plusieurs jours OFF';document.getElementById('multijours-modal').style.display='flex'" style="font-size:11px;padding:4px 9px;">+ OFF x jours</button>
         <button class="btn" id="btn-multiblanc" onclick="multiType='blanc';document.getElementById('multijours-title').textContent='Ajouter plusieurs jours blancs';document.getElementById('multijours-modal').style.display='flex'" style="font-size:11px;padding:4px 9px;">+ Blanc x jours</button>
